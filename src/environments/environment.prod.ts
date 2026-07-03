@@ -2,7 +2,7 @@ export const environment = {
   production: false,
   // baseURL:'http://192.168.10.28:5300/',
 //  baseURL: 'https://test.com/',
-baseURL: 'https://machine-api.vercel.app',
+baseURL: 'https://machine-api.vercel.app/api',
   firebase: {
   apiKey: "AIzaSyDkVZSuW5ZjdbrXWeYbjNWlmNwPnx4Li08",
   authDomain: "eb-store-189a5.firebaseapp.com",

@@ -8,7 +8,8 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://machine-api.vercel.app/api/auth'; 
+  private apiUrl = 'https://machine-api-swj9.vercel.app/api/auth'; 
+  // private apiUrl = 'http://localhost:5000/api/auth';
   private userSubject = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient) {

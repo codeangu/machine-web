@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
 //  baseURL: 'http://localhost:5000/api',
- baseURL: 'https://machine-api.vercel.app/api',
+ baseURL: 'https://machine-api-swj9.vercel.app/api',
 
   firebase: {
   apiKey: "AIzaSyDkVZSuW5ZjdbrXWeYbjNWlmNwPnx4Li08",
