@@ -1,0 +1,45 @@
+.login-hero {
+  min-height: calc(100vh - 145px);
+  background:
+    radial-gradient(1200px 500px at 15% -10%, rgba(79, 70, 229, 0.18), transparent 60%),
+    radial-gradient(1000px 500px at 100% 110%, rgba(14, 165, 233, 0.16), transparent 55%),
+    #f4f6fb;
+}
+
+.login-card {
+  max-width: 430px;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.login-logo {
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+
+  i {
+    font-size: 1.7rem;
+    color: #f59e0b;
+  }
+}
+
+.login-input {
+  background: #f4f6fb;
+  border: 1px solid #e8ecf3;
+  border-radius: 11px;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+
+  &:focus-within {
+    border-color: var(--brand);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+
+  .form-control:focus { box-shadow: none; }
+}

@@ -1,0 +1,101 @@
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top py-2 border-bottom">
+  <!-- Container-fluid use karne se header full width ho jayega -->
+  <div class="container-fluid px-4">
+
+    <!-- Brand: MACHINE MANAGEMENT -->
+    <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" routerLink="home">
+      <div class="d-flex align-items-center justify-content-center bg-dark rounded-2 shadow-sm" style="width: 42px; height: 42px;">
+        <i class="bi bi-gear-fill text-warning fs-5"></i>
+      </div>
+      <div class="lh-1">
+        <span class="fw-bold text-dark d-block mb-0 h5">MACHINE<span class="text-warning">MANAGEMENT</span></span>
+        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 2px;">Industrial Systems</small>
+      </div>
+    </a>
+
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler border-0 shadow-none" type="button" (click)="isCollapsed = !isCollapsed">
+      <i class="bi bi-list fs-1"></i>
+    </button>
+
+    <!-- Navigation -->
+    <div class="collapse navbar-collapse" [ngbCollapse]="isCollapsed">
+      
+      <!-- Central Menu Links (mx-auto provides centering for links) -->
+      <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-2">
+        <ng-container *ngFor="let item of navLinks">
+          
+          <!-- Dropdown Style -->
+          <li *ngIf="item.dropdown" 
+              class="nav-item dropdown px-1" 
+              ngbDropdown 
+              (mouseenter)="item.isOpen = true" 
+              (mouseleave)="item.isOpen = false"
+              [open]="item.isOpen ?? false">
+            
+            <a ngbDropdownToggle 
+               class="nav-link fw-bold px-3 text-dark small text-uppercase d-flex align-items-center gap-1" 
+               style="cursor: pointer; font-size: 0.8rem;">
+              {{ item.label }}
+            </a>
+
+            <ul class="dropdown-menu border-0 shadow-lg p-2 rounded-3 mt-0" ngbDropdownMenu>
+              <li *ngFor="let sub of item.dropdown">
+                <a [routerLink]="sub.route" 
+                   class="dropdown-item py-2 px-3 rounded-2 small fw-semibold" 
+                   routerLinkActive="bg-light text-primary"
+                   (click)="isCollapsed = true">
+                  {{ sub.label }}
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Single Link Style -->
+          <li *ngIf="!item.dropdown" class="nav-item px-1">
+            <a [routerLink]="item.route" 
+               class="nav-link fw-bold px-3 text-dark small text-uppercase"
+               routerLinkActive="text-primary"
+               style="font-size: 0.8rem;"
+               (click)="isCollapsed = true">
+              {{ item.label }}
+            </a>
+          </li>
+        </ng-container>
+      </ul>
+
+      <!-- Right Side Actions -->
+      <div class="d-flex align-items-center gap-3">
+
+        <!-- Auth Section -->
+        <div class="auth border-start ps-3">
+          <a *ngIf="!user" 
+             routerLink="login" 
+             class="btn btn-dark btn-sm px-4 py-2 fw-bold rounded-1 text-uppercase small shadow-sm"
+             style="font-size: 0.75rem;">
+            Employee Login
+          </a>
+
+          <div *ngIf="user" class="dropdown" ngbDropdown>
+            <button class="btn btn-outline-dark btn-sm px-3 py-2 fw-bold rounded-1 d-flex align-items-center gap-2" ngbDropdownToggle>
+              <i class="bi bi-person-circle"></i> ACCOUNT
+            </button>
+            <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 rounded-3 mt-2" ngbDropdownMenu>
+              <div class="px-3 py-2 border-bottom mb-2 bg-light rounded-top">
+                <small class="text-muted d-block text-uppercase" style="font-size: 9px;">Logged in as</small>
+                <span class="fw-bold text-dark small">{{role}}</span>
+              </div>
+              <a routerLink="/guide" class="dropdown-item py-2 fw-semibold rounded-2" (click)="isCollapsed = true">
+                <i class="bi bi-life-preserver me-2 text-primary"></i> Help &amp; Guide
+              </a>
+              <button (click)="logout()" class="dropdown-item py-2 text-danger fw-bold rounded-2">
+                <i class="bi bi-box-arrow-right me-2"></i> Logout
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</nav>

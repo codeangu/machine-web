@@ -1,0 +1,313 @@
+<div class="container-fluid py-4 px-4" *ngIf="!showInvoice">
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">{{ isEditMode ? 'Edit Purchase' : 'Add Purchase' }}</h4>
+      <p class="text-muted small mb-0">{{ isEditMode ? 'Update purchase bill details.' : 'Record a new purchase from supplier.' }}</p>
+    </div>
+  </div>
+
+  <!-- Header Info -->
+  <div class="card shadow-sm border-0 mb-3" [formGroup]="headerGroup">
+    <div class="card-body py-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold small mb-1">Supplier <span class="text-danger">*</span></label>
+          <select class="form-select form-select-sm" formControlName="supplier"
+            [class.is-invalid]="headerGroup.get('supplier')?.invalid && headerGroup.get('supplier')?.touched">
+            <option value="">-- Select Supplier --</option>
+            <option *ngFor="let s of suppliers" [value]="s._id">{{s.name}} ({{s.companyName}})</option>
+          </select>
+          <div class="invalid-feedback">This field is required.</div>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold small mb-1">Invoice # <span class="text-danger">*</span></label>
+          <input class="form-control form-control-sm" formControlName="invoiceNumber" placeholder="INV-2024-001"
+            [class.is-invalid]="headerGroup.get('invoiceNumber')?.invalid && headerGroup.get('invoiceNumber')?.touched">
+          <div class="invalid-feedback">This field is required.</div>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold small mb-1">Date <span class="text-danger">*</span></label>
+          <input type="date" class="form-control form-control-sm" formControlName="invoiceDate"
+            [class.is-invalid]="headerGroup.get('invoiceDate')?.invalid && headerGroup.get('invoiceDate')?.touched">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold small mb-1">Delivery Charges</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" class="form-control" formControlName="deliveryCharges" placeholder="0" min="0">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout: Left (Items) + Right (Summary) -->
+  <div class="row g-3 align-items-start">
+
+    <!-- LEFT: Search + Items Table -->
+    <div class="col-12 col-lg-8">
+
+      <!-- Search -->
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body py-3">
+          <label class="form-label fw-semibold small mb-1">
+            <i class="bi bi-search me-1"></i> Search Product
+            <span class="text-muted fw-normal ms-1">— name, model, brand or barcode</span>
+          </label>
+          <input class="form-control" [(ngModel)]="searchModel"
+            [ngbTypeahead]="searchProducts"
+            [resultFormatter]="formatter"
+            [inputFormatter]="formatter"
+            (selectItem)="onProductSelected($event)"
+            placeholder="Type or scan barcode...">
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-2 px-3 d-flex align-items-center gap-2">
+          <span class="fw-semibold small text-uppercase text-muted" style="letter-spacing:.05em">Items</span>
+          <span class="badge bg-primary">{{itemsGroups.length}}</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+            <thead class="table-light">
+              <tr>
+                <th>Product</th>
+                <th>Serial #</th>
+                <th style="width:80px">Qty <span class="text-danger">*</span></th>
+                <th style="width:130px">Purchase Price <span class="text-danger">*</span></th>
+                <th style="width:120px">Sale Price</th>
+                <th style="width:90px">Total</th>
+                <th style="width:45px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let item of itemsGroups; let i = index" [formGroup]="item">
+                <tr>
+                  <td>
+                    <span class="fw-semibold">{{item.get('productName')?.value}}</span>
+                    <div class="d-flex align-items-center gap-1 mt-1">
+                      <span class="text-muted" style="font-size:0.78rem">{{item.get('model')?.value}}</span>
+                      <span class="badge bg-secondary" style="font-size:0.7rem">{{item.get('type')?.value}}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <input class="form-control form-control-sm" formControlName="serialNumber" placeholder="Serial #"
+                      [class.is-invalid]="item.get('serialNumber')?.invalid && item.get('serialNumber')?.touched">
+                  </td>
+                  <td>
+                    <input type="number" class="form-control form-control-sm" formControlName="quantity" min="1"
+                      [class.is-invalid]="item.get('quantity')?.invalid && item.get('quantity')?.touched">
+                  </td>
+                  <td>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text px-2">Rs.</span>
+                      <input type="number" class="form-control" formControlName="unitCost" min="0"
+                        [class.is-invalid]="item.get('unitCost')?.invalid && item.get('unitCost')?.touched">
+                    </div>
+                  </td>
+                  <td>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text px-2">Rs.</span>
+                      <input type="number" class="form-control" formControlName="unitPriceText" placeholder="0" min="0">
+                    </div>
+                  </td>
+                  <td class="fw-semibold text-end">Rs.{{getLineTotal(item) | number:'1.0-0'}}</td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-danger border-0" (click)="removeItem(i)" title="Remove">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </td>
+                </tr>
+              </ng-container>
+              <tr *ngIf="itemsGroups.length === 0">
+                <td colspan="7" class="text-center text-muted py-5">
+                  <i class="bi bi-box-seam fs-2 d-block mb-2 opacity-25"></i>
+                  <span class="small">No products added — search above to add items</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Invoice Summary -->
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm" style="position:sticky; top:80px">
+
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="fw-bold mb-0">Invoice Summary</h6>
+        </div>
+
+        <div class="card-body" [formGroup]="headerGroup">
+
+          <!-- Line items summary -->
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted small">Items</span>
+            <span class="fw-semibold small">{{itemsGroups.length}}</span>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted small">Subtotal</span>
+            <span class="fw-semibold small">Rs. {{subtotal | number:'1.0-0'}}</span>
+          </div>
+
+          <!-- Discount -->
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <span class="text-muted small">Discount (Rs.)</span>
+            <input type="number" class="form-control form-control-sm text-end" style="width:100px"
+              formControlName="globalDiscount" min="0" placeholder="0">
+          </div>
+
+          <!-- Tax -->
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <span class="text-muted small">Tax (%)</span>
+            <input type="number" class="form-control form-control-sm text-end" style="width:100px"
+              formControlName="globalTax" min="0" placeholder="0">
+          </div>
+
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted small">Tax Amount</span>
+            <span class="fw-semibold small">Rs. {{totalTax | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-danger small">Delivery Charges</span>
+            <span class="fw-semibold small text-danger">Rs. {{deliveryCharges | number:'1.0-0'}}</span>
+          </div>
+
+          <!-- Grand Total -->
+          <div class="d-flex justify-content-between align-items-center py-3 mt-1 border-bottom">
+            <span class="fw-bold">Grand Total</span>
+            <span class="fw-bold fs-5 text-primary">Rs. {{grandTotal | number:'1.0-0'}}</span>
+          </div>
+
+          <!-- Amount Paid (partial payment supported) -->
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <span class="text-success small fw-semibold">Amount Paid</span>
+            <input type="number" class="form-control form-control-sm text-end" style="width:120px"
+              formControlName="amountPaid" min="0" placeholder="0">
+          </div>
+
+          <!-- Balance Due -->
+          <div class="d-flex justify-content-between align-items-center py-2 mb-2">
+            <span class="small fw-semibold" [class.text-danger]="balanceDue > 0" [class.text-success]="balanceDue <= 0">Balance Due</span>
+            <span class="fw-bold" [class.text-danger]="balanceDue > 0" [class.text-success]="balanceDue <= 0">Rs. {{balanceDue | number:'1.0-0'}}</span>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary py-2 fw-semibold"
+              (click)="autoDownloadPdf = false; submit()" [disabled]="loading || itemsGroups.length === 0">
+              <span *ngIf="loading && !autoDownloadPdf" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!loading" class="bi bi-check2-circle me-2"></i>
+              {{ isEditMode ? 'Update Purchase' : 'Save Purchase' }}
+            </button>
+
+            <button class="btn btn-outline-danger py-2 fw-semibold"
+              (click)="submitAndPdf()" [disabled]="loading || itemsGroups.length === 0">
+              <span *ngIf="loading && autoDownloadPdf" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!loading" class="bi bi-file-earmark-pdf me-2"></i>
+              Save & Download PDF
+            </button>
+          </div>
+
+          <p class="text-muted text-center small mt-2 mb-0" *ngIf="itemsGroups.length === 0">
+            Add at least one product
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== INVOICE PREVIEW ===================== -->
+<div *ngIf="showInvoice && savedPurchase" class="container my-4" id="invoice-print-area">
+  <div class="card shadow border-0 overflow-hidden" id="invoice-preview">
+    <!-- Premium accent bar -->
+    <div style="height:6px;background:linear-gradient(90deg,#4f46e5,#0ea5e9);"></div>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center p-4">
+      <div>
+        <h4 class="mb-0 fw-bold text-primary">PURCHASE INVOICE</h4>
+        <p class="text-muted mb-0 small">Invoice #: <strong>{{savedPurchase.header.invoiceNumber}}</strong></p>
+        <p class="text-muted mb-0 small">Date: {{savedPurchase.header.invoiceDate | date:'dd MMM yyyy'}}</p>
+      </div>
+      <div class="text-end">
+        <h5 class="mb-0 fw-bold">MACHINE<span class="text-warning">MANAGEMENT</span></h5>
+        <p class="text-muted mb-0 small text-uppercase" style="letter-spacing:2px;">Industrial Systems</p>
+        <p class="text-muted mb-0 small mt-2">Supplier: <strong>{{savedPurchase.supplierName}}</strong></p>
+      </div>
+    </div>
+
+    <div class="card-body p-4">
+      <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Product</th>
+              <th>Serial #</th>
+              <th class="text-center">Qty</th>
+              <th class="text-end">Purchase Price</th>
+              <th class="text-end">Sale Price</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of savedPurchase.items; let i = index">
+              <td>{{i+1}}</td>
+              <td>
+                <span class="fw-semibold">{{item.productName}}</span>
+                <div class="text-muted small">{{item.model}} <span class="badge bg-secondary ms-1">{{item.type}}</span></div>
+              </td>
+              <td>{{item.serialNumber || '—'}}</td>
+              <td class="text-center">{{item.quantity}}</td>
+              <td class="text-end">Rs. {{item.unitCost | number:'1.0-0'}}</td>
+              <td class="text-end">{{item.unitPriceText ? 'Rs. ' + (item.unitPriceText | number:'1.0-0') : '—'}}</td>
+              <td class="text-end fw-bold">Rs. {{item.totalAmount | number:'1.0-0'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-5 offset-md-7">
+          <table class="table table-sm table-borderless mb-0">
+            <tr><td class="text-muted">Subtotal:</td><td class="text-end fw-semibold">Rs. {{savedPurchase.subtotal | number:'1.0-0'}}</td></tr>
+            <tr><td class="text-muted">Tax:</td><td class="text-end fw-semibold">Rs. {{savedPurchase.totalTax | number:'1.0-0'}}</td></tr>
+            <tr><td class="text-danger">Delivery:</td><td class="text-end fw-semibold text-danger">Rs. {{savedPurchase.deliveryCharges | number:'1.0-0'}}</td></tr>
+            <tr class="border-top">
+              <td class="pt-2 fw-bold">Grand Total:</td>
+              <td class="text-end pt-2 fw-bold text-primary fs-5">Rs. {{savedPurchase.grandTotal | number:'1.0-0'}}</td>
+            </tr>
+            <tr><td class="text-success">Amount Paid:</td><td class="text-end fw-semibold text-success">Rs. {{savedPurchase.amountPaid | number:'1.0-0'}}</td></tr>
+            <tr>
+              <td [class.text-danger]="(savedPurchase.grandTotal - savedPurchase.amountPaid) > 0">Balance Due:</td>
+              <td class="text-end fw-bold" [class.text-danger]="(savedPurchase.grandTotal - savedPurchase.amountPaid) > 0" [class.text-success]="(savedPurchase.grandTotal - savedPurchase.amountPaid) <= 0">
+                Rs. {{(savedPurchase.grandTotal - savedPurchase.amountPaid) | number:'1.0-0'}}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center gap-3 mt-4 d-print-none">
+    <button class="btn btn-outline-secondary px-4" (click)="newPurchase()">
+      <i class="bi bi-plus-circle me-2"></i> New Purchase
+    </button>
+    <button class="btn btn-primary px-4" (click)="printInvoice()">
+      <i class="bi bi-printer me-2"></i> Print
+    </button>
+    <button class="btn btn-danger px-4" (click)="downloadPDF()">
+      <i class="bi bi-file-earmark-pdf me-2"></i> Download PDF
+    </button>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1050;
+  animation: samFade 0.15s ease;
+}
+
+.stock-adjust-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  z-index: 1055;
+  animation: samPop 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+
+  .sam-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: #fff;
+  }
+
+  .sam-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .sam-body {
+    padding: 1.25rem;
+  }
+
+  .sam-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.9rem 1.25rem;
+    border-top: 1px solid #eef2f7;
+    background: #fafbfe;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .sam-logs {
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    overflow: hidden;
+    max-height: 190px;
+    overflow-y: auto;
+  }
+
+  .sam-log-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    &:last-child { border-bottom: none; }
+    &:nth-child(even) { background: #fafbfe; }
+  }
+}
+
+@keyframes samFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes samPop {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}

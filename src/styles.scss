@@ -1,0 +1,383 @@
+/* ===========================================================
+   GLOBAL STYLES — Machine Management ERP
+   Modern, professional theme layer on top of Bootstrap
+   =========================================================== */
+
+/* Modern UI font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Bootstrap + icon fonts */
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons';
+@import 'node_modules/font-awesome/css/font-awesome.css';
+
+/* -----------------------------------------------------------
+   1. DESIGN TOKENS
+   ----------------------------------------------------------- */
+:root {
+  --app-bg:        #f4f6fb;
+  --app-surface:   #ffffff;
+  --app-border:    #e8ecf3;
+  --app-text:      #1e293b;
+  --app-muted:     #64748b;
+
+  --brand:         #4f46e5;   /* indigo */
+  --brand-dark:    #4338ca;
+  --brand-soft:    #eef2ff;
+  --accent:        #0ea5e9;   /* sky */
+  --success:       #16a34a;
+  --warning:       #f59e0b;
+  --danger:        #e11d48;
+
+  --radius:        14px;
+  --radius-sm:     10px;
+  --shadow-sm:     0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .06);
+  --shadow-md:     0 4px 12px rgba(16, 24, 40, .06), 0 2px 4px rgba(16, 24, 40, .04);
+  --shadow-lg:     0 12px 32px rgba(16, 24, 40, .10);
+
+  /* Bootstrap variable overrides */
+  --bs-primary:    #4f46e5;
+  --bs-body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bs-body-color: #1e293b;
+}
+
+/* -----------------------------------------------------------
+   2. BASE
+   ----------------------------------------------------------- */
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight: 700; letter-spacing: -0.02em; }
+
+a { text-decoration: none; }
+
+.text-muted { color: var(--app-muted) !important; }
+
+/* -----------------------------------------------------------
+   3. CARDS
+   ----------------------------------------------------------- */
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius);
+  background: var(--app-surface);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.card.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.card.shadow { box-shadow: var(--shadow-md) !important; }
+
+.card:hover { box-shadow: var(--shadow-md); }
+
+/* lift effect for interactive summary cards */
+.card.border-start { transition: box-shadow .2s ease, transform .2s ease; position: relative; overflow: hidden; }
+.card.border-start:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+
+/* Premium stat / summary cards — subtle tint wash matching the accent border */
+.card.border-start.border-primary { background: linear-gradient(135deg, #fff 60%, rgba(79,70,229,.06)); }
+.card.border-start.border-success { background: linear-gradient(135deg, #fff 60%, rgba(22,163,74,.06)); }
+.card.border-start.border-warning { background: linear-gradient(135deg, #fff 60%, rgba(245,158,11,.07)); }
+.card.border-start.border-danger  { background: linear-gradient(135deg, #fff 60%, rgba(225,29,72,.06)); }
+.card.border-start.border-info    { background: linear-gradient(135deg, #fff 60%, rgba(14,165,233,.06)); }
+
+.card-header {
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+  font-weight: 600;
+}
+
+/* -----------------------------------------------------------
+   4. BUTTONS
+   ----------------------------------------------------------- */
+.btn {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: all .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  border-color: var(--brand-dark);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, .3);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background: linear-gradient(135deg, var(--brand-dark), #3730a3);
+  border-color: #3730a3;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, .38);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  border-color: #15803d;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, .28);
+}
+.btn-success:hover, .btn-success:focus {
+  background: linear-gradient(135deg, #15803d, #166534);
+  border-color: #166534;
+}
+
+.btn-outline-primary { color: var(--brand); border-color: var(--brand); }
+.btn-outline-primary:hover { background-color: var(--brand); border-color: var(--brand); }
+
+.btn-sm { border-radius: 8px; }
+
+/* -----------------------------------------------------------
+   5. FORM CONTROLS
+   ----------------------------------------------------------- */
+.form-control, .form-select {
+  border-radius: var(--radius-sm);
+  border-color: var(--app-border);
+  background-color: #fbfcfe;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+  background-color: #fff;
+}
+.form-label { font-weight: 600; color: #334155; }
+.input-group-text { background-color: #f1f5f9; border-color: var(--app-border); color: var(--app-muted); }
+
+/* -----------------------------------------------------------
+   6. TABLES
+   ----------------------------------------------------------- */
+.table { color: var(--app-text); }
+.table > thead.table-dark th {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-color: #1e293b;
+}
+.table > thead.table-secondary th {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.table-hover > tbody > tr { transition: background-color .12s ease; }
+.table-hover > tbody > tr:hover > * { background-color: var(--brand-soft); }
+.table > :not(caption) > * > * { padding: 0.7rem 0.75rem; }
+
+/* -----------------------------------------------------------
+   7. BADGES
+   ----------------------------------------------------------- */
+.badge { font-weight: 600; letter-spacing: 0.01em; padding: 0.4em 0.65em; border-radius: 7px; }
+.badge.rounded-pill { border-radius: 50rem; }
+
+/* -----------------------------------------------------------
+   8. NAV PILLS (Reports tabs etc.)
+   ----------------------------------------------------------- */
+.nav-pills .nav-link {
+  color: var(--app-muted);
+  border-radius: var(--radius-sm);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  transition: all .15s ease;
+}
+.nav-pills .nav-link:hover { color: var(--brand); border-color: var(--brand); }
+.nav-pills .nav-link.active {
+  background-color: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, .3);
+}
+
+/* -----------------------------------------------------------
+   9. MODALS
+   ----------------------------------------------------------- */
+.modal-content {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.modal-header { border-bottom: 1px solid var(--app-border); }
+.modal-footer { border-top: 1px solid var(--app-border); }
+
+/* -----------------------------------------------------------
+   10. ALERTS
+   ----------------------------------------------------------- */
+.alert { border-radius: var(--radius-sm); border: 1px solid transparent; }
+
+/* -----------------------------------------------------------
+   11. UTILITIES
+   ----------------------------------------------------------- */
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow     { box-shadow: var(--shadow-md) !important; }
+.shadow-lg  { box-shadow: var(--shadow-lg) !important; }
+.bg-primary-subtle { background-color: var(--brand-soft) !important; }
+.text-primary { color: var(--brand) !important; }
+
+/* -----------------------------------------------------------
+   12. LOADER (kept from original)
+   ----------------------------------------------------------- */
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  animation: rotate 1s linear infinite;
+}
+.loader::before, .loader::after {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0px;
+  border-radius: 50%;
+  border: 5px solid var(--brand);
+  animation: prixClipFix 2s linear infinite;
+}
+.loader::after {
+  border-color: var(--accent);
+  animation: prixClipFix 2s linear infinite, rotate 0.5s linear infinite reverse;
+  inset: 6px;
+}
+@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes prixClipFix {
+  0%   { clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0); }
+  25%  { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0); }
+  50%  { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%); }
+  75%  { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%); }
+  100% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0); }
+}
+
+/* -----------------------------------------------------------
+   13. SCROLLBAR
+   ----------------------------------------------------------- */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; border: 2px solid var(--app-bg); }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* -----------------------------------------------------------
+   14. DARK MODE (preserved)
+   ----------------------------------------------------------- */
+body.dark-mode {
+  background-color: #0f172a;
+  color: #e2e8f0 !important;
+  --app-bg: #0f172a;
+  --app-surface: #1e293b;
+  --app-border: #334155;
+  --app-text: #e2e8f0;
+  --app-muted: #94a3b8;
+
+  .card { background: #1e293b; border-color: #334155; }
+  .card-header { background: #1e293b; }
+  .form-control, .form-select { background-color: #0f172a; color: #e2e8f0; border-color: #334155; }
+  .text-muted { color: #94a3b8 !important; }
+
+  h1, h2, h3, h4, h5, h6 { color: #f1f5f9 !important; }
+}
+
+/* -----------------------------------------------------------
+   14b. NAVBAR (premium header polish)
+   ----------------------------------------------------------- */
+.navbar.sticky-top {
+  backdrop-filter: saturate(1.4) blur(6px);
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 1px solid var(--app-border) !important;
+}
+.navbar .nav-link {
+  position: relative;
+  transition: color .15s ease;
+}
+.navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem; right: 0.75rem; bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform .18s ease;
+}
+.navbar .nav-link:hover::after,
+.navbar .nav-link.text-primary::after { transform: scaleX(1); }
+.navbar .navbar-brand > div.bg-dark {
+  background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+}
+
+/* -----------------------------------------------------------
+   14c. PAGE HEADINGS
+   ----------------------------------------------------------- */
+h1.fw-bold, h2.fw-bold, h3.fw-bold, h4.fw-bold { color: #0f172a; }
+
+/* -----------------------------------------------------------
+   14d. SHARED APP MODAL (returns, adjustments)
+   ----------------------------------------------------------- */
+.app-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1050;
+  animation: appModalFade .15s ease;
+}
+.app-modal {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, 95vw);
+  max-height: 92vh; overflow-y: auto;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  z-index: 1055;
+  animation: appModalPop .18s cubic-bezier(.2,.8,.3,1);
+}
+.app-modal .am-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+}
+.app-modal .am-header.am-danger { background: linear-gradient(135deg, #e11d48, #be123c); }
+.app-modal .am-icon {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: rgba(255,255,255,.18);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.app-modal .am-body { padding: 1.25rem; }
+.app-modal .am-footer {
+  display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  padding: .9rem 1.25rem; border-top: 1px solid #eef2f7; background: #fafbfe;
+  border-radius: 0 0 16px 16px;
+}
+@keyframes appModalFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes appModalPop {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* -----------------------------------------------------------
+   15. GLOBAL PRINT RULES
+   When printing an on-page invoice (sale/purchase) or report,
+   hide the app chrome and show only the printable content.
+   ----------------------------------------------------------- */
+@media print {
+  app-header, app-footer, nav, .navbar,
+  .d-print-none, .no-print { display: none !important; }
+
+  body { background: #fff !important; }
+  .main-content, .app-container { display: block !important; }
+
+  /* Invoice / printable cards should span the full page with no shadow */
+  #invoice-preview, .print-area {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  @page { margin: 12mm; }
+}

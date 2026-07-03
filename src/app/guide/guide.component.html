@@ -1,0 +1,43 @@
+<div class="container py-4">
+
+  <!-- Hero -->
+  <div class="guide-hero card border-0 shadow-sm mb-4 overflow-hidden">
+    <div style="height:6px;background:linear-gradient(90deg,#4f46e5,#0ea5e9);"></div>
+    <div class="card-body p-4 p-md-5 text-center">
+      <div class="guide-hero-icon mx-auto mb-3"><i class="bi bi-life-preserver"></i></div>
+      <h2 class="fw-bold mb-2">How to Use This Software</h2>
+      <p class="text-muted mb-0">A simple step-by-step guide. Follow the sections in order the first time — after that, jump to whatever you need.</p>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="row g-3">
+    <div class="col-md-6" *ngFor="let s of sections">
+      <div class="card border-0 shadow-sm h-100 guide-card">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="guide-badge"><i class="bi" [ngClass]="s.icon"></i></div>
+            <h5 class="fw-bold mb-0">{{ s.title }}</h5>
+          </div>
+          <ol class="guide-list mb-0">
+            <li *ngFor="let step of s.steps">{{ step }}</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="card border-0 shadow-sm mt-4 border-start border-primary border-4">
+    <div class="card-body p-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>Helpful Tips</h5>
+      <ul class="mb-0 text-muted">
+        <li>A green message at the top-right means an action worked. A red one means something needs fixing.</li>
+        <li>You cannot delete a product, customer or supplier that already has sales/purchases — delete those records first.</li>
+        <li>Stock updates by itself on every purchase, sale, and return — you rarely need manual adjustment.</li>
+        <li>Use the search box on any list page to quickly find an invoice, product, or person.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>

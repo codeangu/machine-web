@@ -1,0 +1,241 @@
+<!-- Modal Header -->
+<div class="modal-header border-0 p-0">
+  <div class="w-100 d-flex align-items-center justify-content-between px-4 py-3"
+       style="background:linear-gradient(120deg,#1e293b 0%,#312e81 100%);color:#fff">
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+           style="width:46px;height:46px;background:rgba(255,255,255,.12)">
+        <i class="bi bi-truck fs-4 text-warning"></i>
+      </div>
+      <div class="lh-sm">
+        <div class="d-flex align-items-center gap-2">
+          <h5 class="fw-bold mb-0">{{supplierName}}</h5>
+          <span class="badge rounded-pill" style="background:rgba(255,255,255,.15)">Supplier</span>
+        </div>
+        <small class="text-white-50"><i class="bi bi-journal-text me-1"></i>Account Ledger / Khata Statement</small>
+      </div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <button class="btn btn-sm btn-warning fw-semibold" (click)="showTxForm = !showTxForm">
+        <i class="bi bi-plus-circle me-1"></i>Add Transaction
+      </button>
+      <button class="btn btn-sm btn-outline-light" (click)="printLedger()">
+        <i class="bi bi-printer me-1"></i>Print / PDF
+      </button>
+      <button type="button" class="btn-close btn-close-white ms-1" (click)="activeModal.dismiss()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Body -->
+<div class="modal-body p-0">
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2 text-muted small">Loading ledger...</p>
+  </div>
+
+  <div *ngIf="!loading && ledgerData">
+
+    <!-- Summary Cards -->
+    <div class="row g-0 border-bottom">
+      <div class="col-4 p-3 border-end text-center">
+        <p class="text-muted mb-1 small text-uppercase fw-semibold">Total Purchases</p>
+        <h5 class="fw-bold text-dark mb-0">Rs. {{ledgerData.summary.totalPurchases | number:'1.0-0'}}</h5>
+      </div>
+      <div class="col-4 p-3 border-end text-center" style="background:#f0fdf4">
+        <p class="text-muted mb-1 small text-uppercase fw-semibold">Total Paid</p>
+        <h5 class="fw-bold text-success mb-0">Rs. {{ledgerData.summary.totalPaid | number:'1.0-0'}}</h5>
+      </div>
+      <div class="col-4 p-3 text-center" style="background:#fff5f5">
+        <p class="text-muted mb-1 small text-uppercase fw-semibold">Balance Due</p>
+        <h5 class="fw-bold mb-0"
+          [class.text-danger]="ledgerData.summary.balanceDue > 0"
+          [class.text-success]="ledgerData.summary.balanceDue <= 0">
+          Rs. {{ledgerData.summary.balanceDue | number:'1.0-0'}}
+        </h5>
+      </div>
+    </div>
+
+    <!-- Transaction Form -->
+    <div *ngIf="showTxForm" class="p-3 border-bottom bg-light">
+
+      <!-- Type Selector -->
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <button class="btn w-100 py-3 fw-semibold"
+            [class.btn-success]="txType==='Payment'"
+            [class.btn-outline-secondary]="txType!=='Payment'"
+            (click)="txType='Payment'">
+            <i class="bi bi-cash-coin me-2"></i>
+            <div>Payment Made</div>
+            <small class="opacity-75 fw-normal">Paid to supplier — balance decreases</small>
+          </button>
+        </div>
+        <div class="col-6">
+          <button class="btn w-100 py-3 fw-semibold"
+            [class.btn-warning]="txType==='Purchase'"
+            [class.btn-outline-secondary]="txType!=='Purchase'"
+            (click)="txType='Purchase'">
+            <i class="bi bi-truck me-2"></i>
+            <div>Credit Purchase (On Account)</div>
+            <small class="opacity-75 fw-normal">Goods received on credit — balance increases</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="alert py-2 small mb-3"
+        [class.alert-success]="txType==='Payment'"
+        [class.alert-warning]="txType==='Purchase'">
+        <i class="bi bi-info-circle me-2"></i>
+        <span *ngIf="txType==='Payment'">You paid the supplier — a debit entry will be recorded, balance will decrease</span>
+        <span *ngIf="txType==='Purchase'">Goods received on credit — a credit entry will be recorded, balance will increase</span>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">Amount (Rs.) <span class="text-danger">*</span></label>
+          <input type="number" class="form-control" [(ngModel)]="txAmount" placeholder="0" min="1">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small">Method</label>
+          <select class="form-select" [(ngModel)]="txMethod">
+            <option value="Cash">Cash</option>
+            <option value="Bank">Bank</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Online">Online</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small">Date</label>
+          <input type="date" class="form-control" [(ngModel)]="txDate">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">Note / Invoice #</label>
+          <input type="text" class="form-control" [(ngModel)]="txNote"
+            [placeholder]="txType==='Payment' ? 'e.g. Against Invoice #5' : 'e.g. New stock Invoice #8'">
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn w-100 fw-semibold"
+            [class.btn-success]="txType==='Payment'"
+            [class.btn-warning]="txType==='Purchase'"
+            (click)="submitTransaction()" [disabled]="txLoading">
+            <span *ngIf="txLoading" class="spinner-border spinner-border-sm me-1"></span>
+            Save
+          </button>
+          <button class="btn btn-outline-secondary" (click)="showTxForm=false">✕</button>
+        </div>
+      </div>
+      <div class="alert alert-danger mt-2 py-2 small" *ngIf="txError">{{txError}}</div>
+    </div>
+
+    <!-- Legend -->
+    <div class="d-flex gap-3 px-3 py-2 border-bottom" style="font-size:0.78rem">
+      <span><span class="badge bg-danger me-1">Purchase Bill</span>Goods received from supplier (amount owed)</span>
+      <span><span class="badge bg-success me-1">Payment</span>Paid to supplier</span>
+    </div>
+
+    <!-- Ledger Table -->
+    <div id="ledger-body" class="table-responsive">
+      <table class="table table-sm align-middle mb-0" style="font-size:0.875rem">
+        <thead class="table-dark">
+          <tr>
+            <th class="ps-3" style="width:36px">#</th>
+            <th style="width:105px">Date</th>
+            <th>Type & Reference</th>
+            <th class="text-end" style="width:140px">
+              <span class="text-danger-emphasis">Purchase Bill</span>
+              <div style="font-size:0.7rem;font-weight:400;opacity:.7">(Amount owed)</div>
+            </th>
+            <th class="text-end" style="width:140px">
+              <span class="text-success-emphasis">Payment Made</span>
+              <div style="font-size:0.7rem;font-weight:400;opacity:.7">(Amount paid)</div>
+            </th>
+            <th class="text-end pe-3" style="width:120px">Balance Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of pagedLedger; let i = index"
+            [style.background]="entry.transactionType==='Payment' ? '#f0fdf4' : (entry.transactionType==='Purchase' || entry.transactionType==='Opening Balance' ? '#fff5f5' : '')">
+
+            <td class="ps-3 text-muted small">{{(ledgerPage-1)*ledgerLimit + i + 1}}</td>
+            <td class="small text-muted text-nowrap">{{entry.date | date:'dd MMM yy'}}</td>
+
+            <td>
+              <div class="d-flex align-items-start gap-2">
+                <span class="badge mt-1 flex-shrink-0"
+                  [class.bg-danger]="entry.transactionType==='Purchase'"
+                  [class.bg-success]="entry.transactionType==='Payment'"
+                  [class.bg-warning]="entry.transactionType==='Opening Balance'"
+                  [class.bg-secondary]="entry.transactionType==='Return'">
+                  <i class="bi me-1"
+                    [class.bi-truck]="entry.transactionType==='Purchase'"
+                    [class.bi-cash-coin]="entry.transactionType==='Payment'"
+                    [class.bi-wallet2]="entry.transactionType==='Opening Balance'"></i>
+                  {{entry.transactionType==='Purchase' ? 'Purchase Bill' :
+                    entry.transactionType==='Payment' ? 'Payment Made' :
+                    entry.transactionType}}
+                </span>
+                <div>
+                  <div class="fw-semibold small">{{entry.description}}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Purchase Bill Amount -->
+            <td class="text-end">
+              <span *ngIf="entry.credit > 0" class="fw-bold text-danger">Rs. {{entry.credit | number:'1.0-0'}}</span>
+              <span *ngIf="!(entry.credit > 0)" class="text-muted">—</span>
+            </td>
+
+            <!-- Payment Made -->
+            <td class="text-end">
+              <span *ngIf="entry.debit > 0" class="fw-bold text-success">Rs. {{entry.debit | number:'1.0-0'}}</span>
+              <span *ngIf="!(entry.debit > 0)" class="text-muted">—</span>
+            </td>
+
+            <!-- Running Balance -->
+            <td class="text-end pe-3">
+              <span class="fw-bold"
+                [class.text-danger]="entry.runningBalance > 0"
+                [class.text-success]="entry.runningBalance <= 0">
+                Rs. {{entry.runningBalance | number:'1.0-0'}}
+              </span>
+              <div style="font-size:0.7rem"
+                [class.text-danger]="entry.runningBalance > 0"
+                [class.text-success]="entry.runningBalance <= 0">
+                {{entry.runningBalance > 0 ? 'Outstanding' : 'Settled'}}
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="ledgerData.ledger.length === 0">
+            <td colspan="6" class="text-center text-muted py-4 small">No transactions found.</td>
+          </tr>
+        </tbody>
+
+        <!-- Footer Totals -->
+        <tfoot style="background:#1e293b;color:#fff">
+          <tr class="fw-bold">
+            <td colspan="3" class="ps-3 py-2 text-end">Totals:</td>
+            <td class="text-end py-2 text-danger">Rs. {{ledgerData.summary.totalPurchases | number:'1.0-0'}}</td>
+            <td class="text-end py-2 text-success">Rs. {{ledgerData.summary.totalPaid | number:'1.0-0'}}</td>
+            <td class="text-end pe-3 py-2"
+              [class.text-danger]="ledgerData.summary.balanceDue > 0"
+              [class.text-success]="ledgerData.summary.balanceDue <= 0">
+              Rs. {{ledgerData.summary.balanceDue | number:'1.0-0'}}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="px-3 pb-2">
+      <app-pagination [page]="ledgerPage" [limit]="ledgerLimit" [total]="ledgerRows.length" [totalPages]="ledgerTotalPages"
+        (pageChange)="onLedgerPage($event)"></app-pagination>
+    </div>
+
+  </div>
+</div>

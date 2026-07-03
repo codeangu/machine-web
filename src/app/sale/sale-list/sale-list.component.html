@@ -1,0 +1,237 @@
+<div class="container-fluid py-4 px-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">Sales History</h4>
+      <p class="text-muted small mb-0">Invoice wise sale records & payment tracking</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="exportPDF()">
+        <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+      </button>
+      <button class="btn btn-primary px-4" routerLink="/add-sale">
+        <i class="bi bi-plus-lg me-2"></i>New Sale
+      </button>
+    </div>
+  </div>
+
+  <!-- Date Range Filter -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">From</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="fromDate">
+        </div>
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">To</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="toDate">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary btn-sm px-3" (click)="applyFilter()"><i class="bi bi-funnel me-1"></i>Apply</button>
+        </div>
+        <div class="col d-flex gap-2 flex-wrap">
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('today')">Today</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('week')">Last 7 Days</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('month')">This Month</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('all')">All Time</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm border-start border-primary border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Sales</p>
+          <h4 class="fw-bold mb-0">Rs. {{totalSales | number:'1.0-0'}}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm border-start border-success border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Received</p>
+          <h4 class="fw-bold mb-0 text-success">Rs. {{totalReceived | number:'1.0-0'}}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm border-start border-danger border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Balance Due</p>
+          <h4 class="fw-bold mb-0 text-danger">Rs. {{totalDue | number:'1.0-0'}}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2 px-3">
+      <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-start-0" placeholder="Search by invoice # or customer..."
+          [(ngModel)]="searchTerm" (input)="onSearch()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+        <thead class="table-dark">
+          <tr>
+            <th class="ps-3">Date</th>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th class="text-end">Grand Total</th>
+            <th class="text-end">Received</th>
+            <th class="text-end">Balance Due</th>
+            <th class="text-center">Status</th>
+            <th class="text-center pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of filteredSales">
+            <td class="ps-3">
+              <div class="fw-semibold small">{{s.date | date:'dd MMM yyyy'}}</div>
+              <div class="text-muted" style="font-size:0.72rem">{{s.date | date:'hh:mm a'}}</div>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border fw-bold">{{s.invoiceNumber}}</span>
+            </td>
+            <td>
+              <div class="fw-semibold small">{{s.customer?.name || s.customerName || 'Walking Customer'}}</div>
+              <div class="text-muted" style="font-size:0.72rem">
+                <span *ngIf="s.customer">Account Holder</span>
+                <span *ngIf="!s.customer">Cash Sale</span>
+              </div>
+            </td>
+            <td class="text-end fw-semibold">Rs. {{s.grandTotal | number:'1.0-0'}}</td>
+            <td class="text-end text-success fw-semibold">Rs. {{s.amountReceived | number:'1.0-0'}}</td>
+            <td class="text-end fw-bold"
+              [class.text-danger]="getBalanceDue(s) > 0"
+              [class.text-success]="getBalanceDue(s) <= 0">
+              Rs. {{getBalanceDue(s) | number:'1.0-0'}}
+            </td>
+            <td class="text-center">
+              <span class="badge rounded-pill px-2"
+                [class.bg-success]="getStatus(s) === 'paid'"
+                [class.bg-warning]="getStatus(s) === 'partial'"
+                [class.bg-danger]="getStatus(s) === 'unpaid'">
+                <span *ngIf="getStatus(s) === 'paid'">Fully Paid</span>
+                <span *ngIf="getStatus(s) === 'partial'">Partial</span>
+                <span *ngIf="getStatus(s) === 'unpaid'">Unpaid</span>
+              </span>
+            </td>
+            <td class="text-center pe-3">
+              <div class="d-flex gap-1 justify-content-center">
+                <button class="btn btn-sm btn-success" (click)="openPayment(s)"
+                  [disabled]="getBalanceDue(s) <= 0 || !s.customer"
+                  [title]="!s.customer ? 'Walking customer — payment not tracked' : 'Record Payment'">
+                  <i class="bi bi-cash me-1"></i>Receive
+                </button>
+                <button class="btn btn-sm btn-outline-primary" (click)="openReturn(s)" title="Return items">
+                  <i class="bi bi-arrow-return-left"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" (click)="editSale(s._id)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteSale(s)" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredSales.length === 0">
+            <td colspan="8" class="text-center py-5 text-muted">
+              <i class="bi bi-receipt fs-2 d-block mb-2 opacity-25"></i>
+              No sales found.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="px-3 pb-2">
+      <app-pagination [page]="page" [limit]="limit" [total]="total" [totalPages]="totalPages"
+        (pageChange)="onPageChange($event)"></app-pagination>
+    </div>
+  </div>
+</div>
+
+<!-- Sale Return Modal -->
+<div class="app-modal-backdrop" *ngIf="returnSale" (click)="closeReturn()"></div>
+<div class="app-modal" *ngIf="returnSale">
+  <div class="am-header">
+    <div class="d-flex align-items-center gap-2">
+      <div class="am-icon"><i class="bi bi-arrow-return-left"></i></div>
+      <div>
+        <h6 class="mb-0 fw-bold">Sale Return</h6>
+        <span class="small opacity-75">Invoice #{{returnSale.invoiceNumber}} — {{returnSale.customerName}}</span>
+      </div>
+    </div>
+    <button class="btn btn-sm text-white" (click)="closeReturn()"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <div class="am-body">
+    <div class="alert alert-danger py-2 small mb-3" *ngIf="returnError">
+      <i class="bi bi-exclamation-triangle me-1"></i>{{returnError}}
+    </div>
+
+    <div *ngIf="returnLoading" class="text-center py-4">
+      <div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading items...
+    </div>
+
+    <div *ngIf="!returnLoading" class="table-responsive">
+      <table class="table table-sm align-middle mb-0" style="font-size:0.85rem">
+        <thead class="table-light">
+          <tr>
+            <th>Product</th>
+            <th class="text-center">Sold</th>
+            <th class="text-center">Returned</th>
+            <th class="text-end">Unit Price</th>
+            <th class="text-center" style="width:120px">Return Qty</th>
+            <th class="text-end">Line Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of returnLines">
+            <td class="fw-semibold">{{l.productName}}</td>
+            <td class="text-center">{{l.soldQty}}</td>
+            <td class="text-center text-muted">{{l.alreadyReturned}}</td>
+            <td class="text-end">Rs. {{l.salePrice | number:'1.0-0'}}</td>
+            <td class="text-center">
+              <input type="number" class="form-control form-control-sm text-center"
+                     [(ngModel)]="l.returnQty" min="0" [max]="l.maxReturn"
+                     [disabled]="l.maxReturn <= 0">
+              <div class="text-muted" style="font-size:0.68rem">max {{l.maxReturn}}</div>
+            </td>
+            <td class="text-end fw-semibold">Rs. {{returnLineTotal(l) | number:'1.0-0'}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mt-3">
+        <label class="form-label small fw-semibold">Reason <span class="text-muted fw-normal">(optional)</span></label>
+        <input type="text" class="form-control" [(ngModel)]="returnReason"
+               placeholder="e.g. Defective, wrong item, customer changed mind...">
+      </div>
+    </div>
+  </div>
+
+  <div class="am-footer">
+    <div class="fw-bold">Refund Total: <span class="text-primary">Rs. {{returnTotal | number:'1.0-0'}}</span></div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-light" (click)="closeReturn()" [disabled]="returnSaving">Cancel</button>
+      <button class="btn btn-primary" (click)="submitReturn()" [disabled]="returnSaving || returnLoading || returnTotal <= 0">
+        <span *ngIf="returnSaving" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!returnSaving" class="bi bi-check-lg me-1"></i>Process Return
+      </button>
+    </div>
+  </div>
+</div>

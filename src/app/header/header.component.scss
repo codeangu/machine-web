@@ -1,0 +1,24 @@
+.active-link {
+  color: #ffc107 !important; // Warning yellow color
+  position: relative;
+}
+
+.nav-link:hover {
+  color: #ffc107 !important;
+  transition: 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+  transition: 0.2s all;
+}
+
+.animate.slideIn {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

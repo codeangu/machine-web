@@ -1,0 +1,651 @@
+<div class="container-fluid py-4 px-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">Reports</h4>
+      <p class="text-muted small mb-0">Sales, Purchase, Stock & Ledger Reports</p>
+    </div>
+    <button class="btn btn-outline-secondary d-print-none" (click)="printReport()">
+      <i class="bi bi-printer me-1"></i> Print
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-pills mb-4 gap-2 d-print-none">
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='dashboard'" (click)="setTab('dashboard')">
+        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='sales'" (click)="setTab('sales')">
+        <i class="bi bi-receipt me-1"></i>Sales Report
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='purchases'" (click)="setTab('purchases')">
+        <i class="bi bi-truck me-1"></i>Purchase Report
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='lowstock'" (click)="setTab('lowstock')">
+        <i class="bi bi-exclamation-triangle me-1"></i>Low Stock
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='salereturns'" (click)="setTab('salereturns')">
+        <i class="bi bi-arrow-return-left me-1"></i>Sale Returns
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='purchasereturns'" (click)="setTab('purchasereturns')">
+        <i class="bi bi-arrow-return-right me-1"></i>Purchase Returns
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='stockadjust'" (click)="setTab('stockadjust')">
+        <i class="bi bi-sliders me-1"></i>Stock Adjustments
+      </button>
+    </li>
+  </ul>
+
+  <!-- Date Filter Bar (Sales + Purchase + Returns + Adjustments tabs) -->
+  <div *ngIf="activeTab==='sales' || activeTab==='purchases' || activeTab==='salereturns' || activeTab==='purchasereturns' || activeTab==='stockadjust'"
+    class="card border-0 shadow-sm mb-4 d-print-none">
+    <div class="card-body py-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">From</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="fromDate">
+        </div>
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">To</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="toDate">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary btn-sm px-4" (click)="applyFilter()">
+            <i class="bi bi-funnel me-1"></i>Apply
+          </button>
+        </div>
+        <div class="col d-flex gap-2 flex-wrap">
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('today')">Today</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('week')">Last 7 Days</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('month')">This Month</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('all')">All Time</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="text-muted mt-2 small">Loading...</p>
+  </div>
+
+  <!-- ===================== DASHBOARD TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='dashboard' && summary">
+
+    <!-- Today Cards -->
+    <h6 class="fw-bold text-uppercase text-muted mb-3" style="letter-spacing:.05em">
+      <i class="bi bi-calendar-check me-2"></i>Today's Summary
+    </h6>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Today's Sales</p>
+            <h4 class="fw-bold mb-0 text-primary">Rs. {{summary.today.sales | number:'1.0-0'}}</h4>
+            <small class="text-muted">{{summary.today.salesCount}} invoices</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-warning border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Today's Purchases</p>
+            <h4 class="fw-bold mb-0 text-warning">Rs. {{summary.today.purchases | number:'1.0-0'}}</h4>
+            <small class="text-muted">{{summary.today.purchasesCount}} invoices</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Customer Balance Due</p>
+            <h4 class="fw-bold mb-0 text-danger">Rs. {{summary.overall.customerDebit | number:'1.0-0'}}</h4>
+            <small class="text-muted">Receivable from customers</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Supplier Balance Due</p>
+            <h4 class="fw-bold mb-0 text-danger">Rs. {{summary.overall.supplierCredit | number:'1.0-0'}}</h4>
+            <small class="text-muted">Payable to suppliers</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Cards -->
+    <h6 class="fw-bold text-uppercase text-muted mb-3" style="letter-spacing:.05em">
+      <i class="bi bi-bar-chart me-2"></i>Overall Summary
+    </h6>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm text-center py-4">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Sales</p>
+          <h3 class="fw-bold text-primary mb-0">Rs. {{summary.overall.totalSales | number:'1.0-0'}}</h3>
+          <small class="text-success">Received: Rs. {{summary.overall.totalReceived | number:'1.0-0'}}</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm text-center py-4">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Purchases</p>
+          <h3 class="fw-bold text-warning mb-0">Rs. {{summary.overall.totalPurchases | number:'1.0-0'}}</h3>
+          <small class="text-success">Paid: Rs. {{summary.overall.totalPaid | number:'1.0-0'}}</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm text-center py-4">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Net Profit (Est.)</p>
+          <h3 class="fw-bold mb-0"
+            [class.text-success]="(summary.overall.totalSales - summary.overall.totalPurchases) >= 0"
+            [class.text-danger]="(summary.overall.totalSales - summary.overall.totalPurchases) < 0">
+            Rs. {{(summary.overall.totalSales - summary.overall.totalPurchases) | number:'1.0-0'}}
+          </h3>
+          <small class="text-muted">Sales − Purchases</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div *ngIf="summary.lowStock?.length > 0">
+      <h6 class="fw-bold text-uppercase text-muted mb-3" style="letter-spacing:.05em">
+        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Low Stock Alert ({{summary.lowStock.length}} products)
+      </h6>
+      <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0" style="font-size:0.875rem">
+            <thead class="table-warning">
+              <tr>
+                <th class="ps-3">Product</th>
+                <th>Model</th>
+                <th class="text-center">Current Stock</th>
+                <th class="text-center">Min Stock</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of summary.lowStock">
+                <td class="ps-3 fw-semibold">{{p.productName}}</td>
+                <td class="text-muted small">{{p.model}}</td>
+                <td class="text-center fw-bold" [class.text-danger]="p.currentStock<=0" [class.text-warning]="p.currentStock>0">
+                  {{p.currentStock || 0}}
+                </td>
+                <td class="text-center text-muted">{{p.minStock}}</td>
+                <td>
+                  <span *ngIf="p.currentStock<=0" class="badge bg-danger">Out of Stock</span>
+                  <span *ngIf="p.currentStock>0" class="badge bg-warning text-dark">Low Stock</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SALES REPORT TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='sales' && salesReport">
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-4">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Sales</p>
+            <h4 class="fw-bold mb-0">Rs. {{salesReport.totalSales | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Amount Received</p>
+            <h4 class="fw-bold mb-0 text-success">Rs. {{salesReport.totalReceived | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Balance Due</p>
+            <h4 class="fw-bold mb-0 text-danger">Rs. {{salesReport.totalDue | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+        <h6 class="fw-bold mb-0">Sales — {{salesReport.sales.length}} invoices</h6>
+        <span class="text-muted small" *ngIf="fromDate || toDate">
+          {{fromDate || 'Start'}} → {{toDate || 'Today'}}
+        </span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem" id="sales-table">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Date</th>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th class="text-end">Grand Total</th>
+              <th class="text-end">Received</th>
+              <th class="text-end">Balance Due</th>
+              <th class="text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of salesReport.sales">
+              <td class="ps-3 small text-nowrap">{{s.createdAt | date:'dd MMM yyyy'}}</td>
+              <td><span class="badge bg-light text-dark border fw-bold">{{s.invoiceNumber}}</span></td>
+              <td class="small fw-semibold">{{s.customer?.name || s.customerName || 'Walk-in'}}</td>
+              <td class="text-end fw-semibold">Rs. {{s.grandTotal | number:'1.0-0'}}</td>
+              <td class="text-end text-success fw-semibold">Rs. {{s.amountReceived | number:'1.0-0'}}</td>
+              <td class="text-end fw-bold"
+                [class.text-danger]="(s.grandTotal - s.amountReceived) > 0"
+                [class.text-success]="(s.grandTotal - s.amountReceived) <= 0">
+                Rs. {{(s.grandTotal - s.amountReceived) | number:'1.0-0'}}
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill"
+                  [class.bg-success]="(s.grandTotal - s.amountReceived) <= 0"
+                  [class.bg-warning]="(s.grandTotal - s.amountReceived) > 0 && s.amountReceived > 0"
+                  [class.bg-danger]="s.amountReceived <= 0">
+                  {{(s.grandTotal - s.amountReceived) <= 0 ? 'Paid' : s.amountReceived > 0 ? 'Partial' : 'Unpaid'}}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="salesReport.sales.length === 0">
+              <td colspan="7" class="text-center py-4 text-muted">No sales found for this period.</td>
+            </tr>
+          </tbody>
+          <tfoot class="table-dark fw-bold" *ngIf="salesReport.sales.length > 0">
+            <tr>
+              <td colspan="3" class="ps-3">Total ({{salesReport.sales.length}} records)</td>
+              <td class="text-end">Rs. {{salesReport.totalSales | number:'1.0-0'}}</td>
+              <td class="text-end text-success">Rs. {{salesReport.totalReceived | number:'1.0-0'}}</td>
+              <td class="text-end text-danger">Rs. {{salesReport.totalDue | number:'1.0-0'}}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PURCHASE REPORT TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='purchases' && purchasesReport">
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-4">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Purchases</p>
+            <h4 class="fw-bold mb-0">Rs. {{purchasesReport.totalPurchases | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Amount Paid</p>
+            <h4 class="fw-bold mb-0 text-success">Rs. {{purchasesReport.totalPaid | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Balance Due</p>
+            <h4 class="fw-bold mb-0 text-danger">Rs. {{purchasesReport.totalDue | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Purchases Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+        <h6 class="fw-bold mb-0">Purchases — {{purchasesReport.purchases.length}} invoices</h6>
+        <span class="text-muted small" *ngIf="fromDate || toDate">
+          {{fromDate || 'Start'}} → {{toDate || 'Today'}}
+        </span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Date</th>
+              <th>Invoice #</th>
+              <th>Supplier</th>
+              <th class="text-end">Grand Total</th>
+              <th class="text-end">Paid</th>
+              <th class="text-end">Balance Due</th>
+              <th class="text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of purchasesReport.purchases">
+              <td class="ps-3 small text-nowrap">{{p.date | date:'dd MMM yyyy'}}</td>
+              <td><span class="badge bg-light text-dark border fw-bold">{{p.purchaseNumber}}</span></td>
+              <td class="small fw-semibold">{{p.supplier?.name}} <span class="text-muted fw-normal">{{p.supplier?.companyName}}</span></td>
+              <td class="text-end fw-semibold">Rs. {{p.grandTotal | number:'1.0-0'}}</td>
+              <td class="text-end text-success fw-semibold">Rs. {{p.amountPaid | number:'1.0-0'}}</td>
+              <td class="text-end fw-bold"
+                [class.text-danger]="(p.grandTotal - p.amountPaid) > 0"
+                [class.text-success]="(p.grandTotal - p.amountPaid) <= 0">
+                Rs. {{(p.grandTotal - p.amountPaid) | number:'1.0-0'}}
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill"
+                  [class.bg-success]="(p.grandTotal - p.amountPaid) <= 0"
+                  [class.bg-warning]="(p.grandTotal - p.amountPaid) > 0 && p.amountPaid > 0"
+                  [class.bg-danger]="p.amountPaid <= 0">
+                  {{(p.grandTotal - p.amountPaid) <= 0 ? 'Paid' : p.amountPaid > 0 ? 'Partial' : 'Unpaid'}}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="purchasesReport.purchases.length === 0">
+              <td colspan="7" class="text-center py-4 text-muted">No purchases found for this period.</td>
+            </tr>
+          </tbody>
+          <tfoot class="table-dark fw-bold" *ngIf="purchasesReport.purchases.length > 0">
+            <tr>
+              <td colspan="3" class="ps-3">Total ({{purchasesReport.purchases.length}} records)</td>
+              <td class="text-end">Rs. {{purchasesReport.totalPurchases | number:'1.0-0'}}</td>
+              <td class="text-end text-success">Rs. {{purchasesReport.totalPaid | number:'1.0-0'}}</td>
+              <td class="text-end text-danger">Rs. {{purchasesReport.totalDue | number:'1.0-0'}}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== LOW STOCK TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='lowstock'">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="fw-bold mb-0 text-warning">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Low Stock Products ({{lowStock.length}})
+        </h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Product</th>
+              <th>Model / Brand</th>
+              <th class="text-center">Current Stock</th>
+              <th class="text-center">Min Stock</th>
+              <th class="text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of lowStock"
+              [class.table-danger]="getStockStatus(p)==='out'"
+              [class.table-warning]="getStockStatus(p)==='low'">
+              <td class="ps-3 fw-semibold">{{p.productName}}</td>
+              <td class="small text-muted">{{p.model}} — {{p.brand}}</td>
+              <td class="text-center fw-bold fs-5"
+                [class.text-danger]="p.currentStock<=0"
+                [class.text-warning]="p.currentStock>0">
+                {{p.currentStock || 0}}
+              </td>
+              <td class="text-center text-muted">{{p.minStock || 5}}</td>
+              <td class="text-center">
+                <span *ngIf="getStockStatus(p)==='out'" class="badge bg-danger px-3">Out of Stock</span>
+                <span *ngIf="getStockStatus(p)==='low'" class="badge bg-warning text-dark px-3">Low Stock</span>
+              </td>
+            </tr>
+            <tr *ngIf="lowStock.length === 0">
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="bi bi-check-circle-fill text-success fs-2 d-block mb-2"></i>
+                All products are sufficiently stocked.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SALE RETURNS REPORT ============ -->
+  <div *ngIf="activeTab==='salereturns'">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Returns</p>
+            <h4 class="fw-bold mb-0">{{saleReturns.length}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Refund Value</p>
+            <h4 class="fw-bold mb-0 text-danger">Rs. {{saleReturnsTotal | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-bold py-3">Sale Returns <span class="text-muted fw-normal">({{saleReturns.length}})</span></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Date</th>
+              <th>Return #</th>
+              <th>Original Invoice</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Reason</th>
+              <th class="text-end pe-3">Refund Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of saleReturns">
+              <td class="ps-3">{{r.date | date:'dd MMM yyyy'}}</td>
+              <td><span class="badge bg-light text-dark border fw-bold">{{r.returnNumber}}</span></td>
+              <td class="small">#{{r.invoiceNumber}}</td>
+              <td class="small fw-semibold">{{r.customer?.name || r.customerName}}</td>
+              <td class="small text-muted">
+                <span *ngFor="let it of r.items; last as isLast">{{it.productName}} ×{{it.quantity}}<span *ngIf="!isLast">, </span></span>
+              </td>
+              <td class="small text-muted">{{r.reason || '—'}}</td>
+              <td class="text-end pe-3 fw-bold text-danger">Rs. {{r.totalAmount | number:'1.0-0'}}</td>
+            </tr>
+            <tr *ngIf="saleReturns.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-arrow-return-left fs-2 d-block mb-2 opacity-25"></i>
+                No sale returns found for this period.
+              </td>
+            </tr>
+          </tbody>
+          <tfoot *ngIf="saleReturns.length > 0">
+            <tr class="fw-bold border-top">
+              <td colspan="6" class="text-end">Total Refund</td>
+              <td class="text-end pe-3 text-danger">Rs. {{saleReturnsTotal | number:'1.0-0'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PURCHASE RETURNS REPORT ============ -->
+  <div *ngIf="activeTab==='purchasereturns'">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Returns</p>
+            <h4 class="fw-bold mb-0">{{purchaseReturns.length}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Return Value</p>
+            <h4 class="fw-bold mb-0 text-success">Rs. {{purchaseReturnsTotal | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-bold py-3">Purchase Returns <span class="text-muted fw-normal">({{purchaseReturns.length}})</span></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Date</th>
+              <th>Return #</th>
+              <th>Original Invoice</th>
+              <th>Supplier</th>
+              <th>Items</th>
+              <th>Reason</th>
+              <th class="text-end pe-3">Return Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of purchaseReturns">
+              <td class="ps-3">{{r.date | date:'dd MMM yyyy'}}</td>
+              <td><span class="badge bg-light text-dark border fw-bold">{{r.returnNumber}}</span></td>
+              <td class="small">#{{r.purchaseNumber}}</td>
+              <td class="small fw-semibold">{{r.supplier?.name || r.supplierName}}</td>
+              <td class="small text-muted">
+                <span *ngFor="let it of r.items; last as isLast">{{it.productName}} ×{{it.quantity}}<span *ngIf="!isLast">, </span></span>
+              </td>
+              <td class="small text-muted">{{r.reason || '—'}}</td>
+              <td class="text-end pe-3 fw-bold text-success">Rs. {{r.totalAmount | number:'1.0-0'}}</td>
+            </tr>
+            <tr *ngIf="purchaseReturns.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-arrow-return-right fs-2 d-block mb-2 opacity-25"></i>
+                No purchase returns found for this period.
+              </td>
+            </tr>
+          </tbody>
+          <tfoot *ngIf="purchaseReturns.length > 0">
+            <tr class="fw-bold border-top">
+              <td colspan="6" class="text-end">Total Return</td>
+              <td class="text-end pe-3 text-success">Rs. {{purchaseReturnsTotal | number:'1.0-0'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STOCK ADJUSTMENTS REPORT ============ -->
+  <div *ngIf="activeTab==='stockadjust' && stockAdjustments">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Adjustments</p>
+            <h4 class="fw-bold mb-0">{{stockAdjustments.count}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Added</p>
+            <h4 class="fw-bold mb-0 text-success">+{{stockAdjustments.totalIncrease}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Removed</p>
+            <h4 class="fw-bold mb-0 text-danger">-{{stockAdjustments.totalDecrease}}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-bold py-3">Stock Adjustment History <span class="text-muted fw-normal">({{stockAdjustments.count}})</span></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Date</th>
+              <th>Product</th>
+              <th>Type</th>
+              <th class="text-center">Before</th>
+              <th class="text-center">After</th>
+              <th class="text-center">Change</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of stockAdjustments.logs">
+              <td class="ps-3">{{l.date | date:'dd MMM yyyy, h:mm a'}}</td>
+              <td class="fw-semibold small">{{l.product?.productName || '—'}}<div class="text-muted" style="font-size:0.72rem">{{l.product?.model}}</div></td>
+              <td>
+                <span class="badge" [class.bg-primary-subtle]="l.type==='Stock Adjustment'" [class.text-primary]="l.type==='Stock Adjustment'"
+                      [class.bg-info-subtle]="l.type==='Min Stock Update'" [class.text-info]="l.type==='Min Stock Update'">{{l.type}}</span>
+              </td>
+              <td class="text-center">
+                <span *ngIf="l.type==='Stock Adjustment'">{{l.previousStock}}</span>
+                <span *ngIf="l.type==='Min Stock Update'" class="text-muted">min {{l.previousMinStock ?? '—'}}</span>
+              </td>
+              <td class="text-center fw-semibold">
+                <span *ngIf="l.type==='Stock Adjustment'">{{l.newStock}}</span>
+                <span *ngIf="l.type==='Min Stock Update'">min {{l.newMinStock}}</span>
+              </td>
+              <td class="text-center fw-bold">
+                <span *ngIf="l.type==='Stock Adjustment'" [class.text-success]="l.change>0" [class.text-danger]="l.change<0">
+                  {{l.change > 0 ? '+' : ''}}{{l.change}}
+                </span>
+                <span *ngIf="l.type==='Min Stock Update'" class="text-muted">—</span>
+              </td>
+              <td class="small text-muted">{{l.reason || '—'}}</td>
+            </tr>
+            <tr *ngIf="stockAdjustments.logs.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-sliders fs-2 d-block mb-2 opacity-25"></i>
+                No stock adjustments found for this period.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Print CSS -->
+<style>
+@media print {
+  .d-print-none { display: none !important; }
+  nav, .navbar { display: none !important; }
+  body { font-size: 12px; }
+}
+</style>

@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "eb-store-189a5",
+    "y": "eb-store-189a5",
+    "staging": "elahi-15d43"
+  },
+  "targets": {
+    "ilhaibukash": {
+      "hosting": {
+        "app": [
+          "elahi-bakhsh"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

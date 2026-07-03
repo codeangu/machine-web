@@ -1,0 +1,55 @@
+.btnmain{
+    background-color: #088F8F;
+    color: white;
+    border-radius: 0;
+}
+.btnmain:hover{
+    color: #088F8F;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.btnPass{
+    color: #088F8F;
+    font-weight: bold;
+    border: 0;
+}
+.btnChng{
+    color: #088F8F;
+    background-color: white;
+    border-radius: 0;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.btnChng:hover{
+    background-color: #088F8F;
+    color: white;
+}
+.form-control{
+    border-radius: 0;
+    // box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.form-control:focus{
+    border: 2px solid #088F8F;
+    box-shadow: none;
+    }
+
+
+
+    .hr-sect {
+        display: flex;
+        flex-basis: 100%;
+        align-items: center;
+        color: rgba(0, 0, 0, 0.35);
+        margin: 8px 0px;
+    }
+    .hr-sect:before,
+    .hr-sect:after {
+        content: "";
+        flex-grow: 1;
+        background: rgba(0, 0, 0, 0.35);
+        height: 1px;
+        font-size: 0px;
+        line-height: 0px;
+        margin: 0px 8px;
+    }

@@ -1,0 +1,285 @@
+<div class="container-fluid py-4 bg-light min-vh-100" [formGroup]="saleForm" *ngIf="!showInvoice">
+  <div class="row">
+    <div class="col-12 mb-3">
+      <h3 class="fw-bold text-dark"><i class="bi bi-receipt-cutoff me-2"></i>Sales Invoice Entry</h3>
+    </div>
+
+    <!-- Header: Customer & Invoice Info -->
+    <div class="col-lg-12 mb-4">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Customer</label>
+            <select class="form-select shadow-sm" formControlName="customerId">
+              <option value="">Walking / Cash Customer</option>
+              <option *ngFor="let c of customers" [value]="c._id">{{c.name}}</option>
+            </select>
+          </div>
+          <div class="col-md-3" *ngIf="!saleForm.get('customerId')?.value">
+            <label class="form-label fw-semibold small">Customer Name</label>
+            <input type="text" class="form-control shadow-sm" formControlName="customerName" placeholder="Name for Invoice">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Invoice No</label>
+            <input type="text" class="form-control bg-light" formControlName="invoiceNumber" readonly>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Date</label>
+            <input type="date" class="form-control shadow-sm" formControlName="date">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Search Bar (Barcode + Name Selector) -->
+    <div class="col-12 mb-4">
+      <div class="card border-0 shadow-sm p-3 bg-primary bg-gradient position-relative">
+        <div class="row align-items-center">
+          <div class="col-md-10 position-relative">
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-search text-primary"></i></span>
+              <input type="text" 
+                     class="form-control border-0 shadow-none" 
+                     placeholder="Scan Barcode or Type Product Name..." 
+                     #barcodeInput
+                     (input)="onSearchChange($event)"
+                     (keyup.enter)="onBarcodeScan($event)"
+                     autocomplete="off">
+            </div>
+
+            <!-- Suggestion Dropdown List -->
+            <ul class="dropdown-menu w-100 shadow-lg border-0 mt-1 show" 
+                *ngIf="filteredProducts.length > 0" 
+                style="max-height: 300px; overflow-y: auto; display: block;">
+              <li *ngFor="let p of filteredProducts">
+                <button class="dropdown-item py-2 border-bottom d-flex justify-content-between align-items-center" 
+                        type="button" 
+                        (click)="selectProduct(p)">
+                  <div>
+                    <strong class="text-dark">{{p.productName}}</strong>
+                    <div class="small text-muted">Code: {{p.productCode || '—'}} | Barcode: {{p.barcode || 'N/A'}}</div>
+                  </div>
+                  <span class="badge rounded-pill" [ngClass]="p.currentStock > 0 ? 'bg-success' : 'bg-danger'">
+                    Stock: {{p.currentStock}}
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-2 text-white text-end d-none d-md-block">
+            <small class="fw-bold"><i class="bi bi-lightning-fill"></i> Smart Selector</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Table Section -->
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+          <span class="fw-bold">Item Details</span>
+          <span class="badge bg-primary">{{items.length}} Items Added</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light small fw-bold text-uppercase">
+              <tr>
+                <th style="width: 40%;">Product Name</th>
+                <th style="width: 10%; text-align: center;">Stock</th>
+                <th style="width: 15%;">Qty</th>
+                <th style="width: 15%;">Unit Price</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;"></th>
+              </tr>
+            </thead>
+            <tbody formArrayName="items">
+              <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+                <td>
+                  <input type="text" class="form-control border-0 bg-transparent fw-bold" formControlName="productName" readonly>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-info-subtle text-info rounded-pill px-3">{{item.get('availableStock')?.value}}</span>
+                </td>
+                <td>
+                  <input type="number" class="form-control shadow-sm" formControlName="quantity" (input)="updateLineTotal(i)">
+                </td>
+                <td>
+                  <input type="number" class="form-control text-end shadow-sm" formControlName="salePrice" (input)="updateLineTotal(i)">
+                </td>
+                <td>
+                  <input type="text" class="form-control bg-light text-end fw-bold border-0" formControlName="lineTotal" readonly>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-link text-danger p-0 shadow-none" (click)="removeItem(i)"><i class="bi bi-trash3-fill fs-5"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="items.length === 0" class="text-center py-5 bg-white text-muted">
+            <i class="bi bi-upc-scan fs-1 d-block mb-2 opacity-25"></i>
+            <p>Scan barcode or search name to add items to invoice</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 20px;">
+        <h5 class="fw-bold border-bottom pb-2 mb-4">Summary</h5>
+        
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted">Subtotal:</span>
+          <span class="fw-bold fs-5">{{subTotal | number}}</span>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-bold">Discount</label>
+          <input type="number" class="form-control text-end shadow-sm" formControlName="discount" (input)="calculateTotals()">
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <span class="fw-bold h5 mb-0">Payable:</span>
+          <span class="fw-bold h4 mb-0 text-primary">Rs. {{grandTotal | number}}</span>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold text-success small">Cash Received</label>
+          <input type="number" class="form-control form-control-lg border-success fw-bold text-end shadow-sm" formControlName="amountReceived">
+        </div>
+
+        <button class="btn btn-success btn-lg w-100 py-3 shadow-sm fw-bold border-0" (click)="saveSale()">
+          <i class="bi bi-printer me-2"></i> SAVE & PRINT
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Preview & Print Layout -->
+<div *ngIf="showInvoice && savedSale" class="container my-4">
+  <div class="card shadow border-0 overflow-hidden" id="invoice-preview" style="background: white;">
+    <!-- Premium accent bar -->
+    <div style="height:6px;background:linear-gradient(90deg,#4f46e5,#0ea5e9);"></div>
+
+    <!-- Invoice Header -->
+    <div class="card-header bg-white border-bottom-0 pt-5 pb-4 px-5">
+      <div class="row align-items-center">
+        <div class="col-sm-6">
+          <h1 class="text-primary fw-bold mb-0">SALES INVOICE</h1>
+          <p class="text-muted mb-0 mt-2">Invoice #: {{savedSale.invoiceNumber}}</p>
+          <p class="text-muted mb-0">Date: {{savedSale.date | date:'mediumDate'}}</p>
+          <span class="badge mt-2 px-3 py-2"
+                [class.bg-success]="(savedSale.grandTotal - savedSale.amountReceived) <= 0"
+                [class.bg-warning]="(savedSale.grandTotal - savedSale.amountReceived) > 0 && savedSale.amountReceived > 0"
+                [class.bg-danger]="savedSale.amountReceived <= 0">
+            {{ (savedSale.grandTotal - savedSale.amountReceived) <= 0 ? 'PAID IN FULL' :
+               (savedSale.amountReceived > 0 ? 'PARTIALLY PAID' : 'UNPAID') }}
+          </span>
+        </div>
+        <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+          <h4 class="mb-1 text-dark fw-bold">MACHINE<span class="text-warning">MANAGEMENT</span></h4>
+          <p class="text-muted mb-0 small text-uppercase" style="letter-spacing:2px;">Industrial Systems</p>
+          <p class="text-muted mb-0 mt-2">123 Industrial Area, City</p>
+          <p class="text-muted mb-0">Phone: +92 300 1234567</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billed To Section -->
+    <div class="card-body px-5 py-4 bg-light">
+      <div class="row">
+        <div class="col-12">
+          <h6 class="text-uppercase text-muted fw-bold mb-3">Billed To:</h6>
+          <h5 class="fw-bold text-dark mb-1">{{savedSale.customerDisplay}}</h5>
+          <p class="text-muted mb-0" *ngIf="savedSale.customerId">Customer ID: {{savedSale.customerId}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="card-body px-5 pt-4 pb-0">
+      <div class="table-responsive">
+        <table class="table table-striped align-middle border">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col" class="py-3">Description</th>
+              <th scope="col" class="text-center py-3">Qty</th>
+              <th scope="col" class="text-end py-3">Unit Price</th>
+              <th scope="col" class="text-end py-3">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of savedSale.items">
+              <td class="py-3 fw-medium">{{item.productName}}</td>
+              <td class="text-center py-3">{{item.quantity}}</td>
+              <td class="text-end py-3">{{item.salePrice | currency:'Rs. '}}</td>
+              <td class="text-end fw-bold py-3">{{item.lineTotal | currency:'Rs. '}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Totals Section -->
+    <div class="card-body px-5 pb-5 pt-3">
+      <div class="row">
+        <div class="col-md-7">
+          <div class="bg-light p-4 rounded h-100">
+            <h6 class="fw-bold text-muted mb-3">Terms & Conditions</h6>
+            <ul class="small text-muted mb-0 ps-3">
+              <li>Goods once sold will not be returned.</li>
+              <li>Warranty claims are subject to company policy.</li>
+              <li>Thank you for doing business with us!</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-5 mt-4 mt-md-0">
+          <table class="table table-borderless table-sm mb-0">
+            <tbody>
+              <tr>
+                <td class="text-muted px-0">Subtotal</td>
+                <td class="text-end fw-bold px-0">{{savedSale.subTotal | currency:'Rs. '}}</td>
+              </tr>
+              <tr>
+                <td class="text-muted px-0">Discount</td>
+                <td class="text-end fw-bold px-0 text-danger">- {{savedSale.discount | currency:'Rs. '}}</td>
+              </tr>
+              <tr class="border-top border-dark border-2">
+                <td class="px-0 pt-3"><h4 class="mb-0 fw-bold text-dark">Grand Total</h4></td>
+                <td class="text-end px-0 pt-3"><h4 class="mb-0 fw-bold text-primary">{{savedSale.grandTotal | currency:'Rs. '}}</h4></td>
+              </tr>
+              <tr>
+                <td class="text-muted px-0 pt-2">Amount Received</td>
+                <td class="text-end fw-bold px-0 pt-2 text-success">{{savedSale.amountReceived | currency:'Rs. '}}</td>
+              </tr>
+              <tr>
+                <td class="text-muted px-0">Balance Due</td>
+                <td class="text-end fw-bold px-0"
+                    [class.text-danger]="(savedSale.grandTotal - savedSale.amountReceived) > 0"
+                    [class.text-success]="(savedSale.grandTotal - savedSale.amountReceived) <= 0">
+                  {{ (savedSale.grandTotal - savedSale.amountReceived) | currency:'Rs. ' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons (Hidden in print) -->
+  <div class="d-flex justify-content-center gap-3 mt-4 d-print-none">
+    <button class="btn btn-outline-secondary px-4 py-2 fw-bold shadow-sm" (click)="newSale()">
+      <i class="bi bi-plus-circle me-2"></i> New Sale
+    </button>
+    <button class="btn btn-primary px-4 py-2 fw-bold shadow-sm" (click)="printInvoice()">
+      <i class="bi bi-printer me-2"></i> Print Invoice
+    </button>
+    <button class="btn btn-danger px-4 py-2 fw-bold shadow-sm" (click)="downloadPDF()">
+      <i class="bi bi-file-earmark-pdf me-2"></i> Download PDF
+    </button>
+  </div>
+</div>

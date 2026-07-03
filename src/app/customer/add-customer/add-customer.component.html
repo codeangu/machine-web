@@ -1,0 +1,61 @@
+<div class="container mt-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+      <!-- Dynamic Title -->
+      <h5 class="mb-0 fw-bold text-primary">{{ editMode ? 'Edit Customer' : 'Add New Customer' }}</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+        <div class="row">
+          
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="name" 
+                   [class.is-invalid]="customerForm.get('name')?.invalid && customerForm.get('name')?.touched">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Phone Number</label>
+            <input type="text" class="form-control" formControlName="phone">
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-semibold">Email Address</label>
+            <input type="email" class="form-control" formControlName="email">
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-semibold">Address</label>
+            <textarea class="form-control" formControlName="address" rows="2"></textarea>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Opening Balance</label>
+            <div class="input-group">
+                <span class="input-group-text">Rs</span>
+                <input type="number" class="form-control" formControlName="openingBalance">
+            </div>
+            <small class="text-muted" *ngIf="editMode">Opening balance cannot be changed after creation.</small>
+          </div>
+
+          <div class="col-md-6 mb-3 d-flex align-items-end">
+            <div class="form-check mb-2">
+              <input type="checkbox" class="form-check-input" id="walk" formControlName="isWalking">
+              <label class="form-check-label" for="walk">Walking Customer?</label>
+            </div>
+          </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-light px-4" routerLink="/customers">Cancel</button>
+          <button type="submit" class="btn btn-primary px-4" [disabled]="customerForm.invalid">
+            <i class="bi bi-check-circle me-1"></i> {{ editMode ? 'Update Changes' : 'Save Customer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

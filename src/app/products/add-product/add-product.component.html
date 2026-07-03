@@ -1,0 +1,201 @@
+<div class="container-fluid py-4 px-4">
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <button type="button" class="btn btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0"
+      style="width:40px;height:40px" routerLink="/products/list">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <div>
+      <h2 class="fw-bold mb-1 text-dark">{{ editMode ? 'Edit Product' : 'Add New Product' }}</h2>
+      <p class="text-muted mb-0 small">{{ editMode ? 'Update product details below.' : 'Fill in the details to create a new product or machine entry.' }}</p>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4 p-md-5">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+        <!-- Basic Info -->
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary flex-shrink-0"
+            style="width:32px;height:32px"><i class="bi bi-box-seam"></i></span>
+          <h6 class="text-uppercase text-muted fw-bold mb-0" style="letter-spacing:.06em;font-size:.78rem">Basic Information</h6>
+        </div>
+
+        <div class="row g-3">
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Product Name <span class="text-danger">*</span></label>
+            <input type="text" formControlName="productName" class="form-control"
+              [class.is-invalid]="form.get('productName')?.invalid && form.get('productName')?.touched"
+              placeholder="e.g. Hydraulic Pump">
+            <div class="invalid-feedback">Product name is required.</div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Model <span class="text-danger">*</span></label>
+            <input type="text" formControlName="model" class="form-control"
+              [class.is-invalid]="form.get('model')?.invalid && form.get('model')?.touched"
+              placeholder="e.g. HP-2000">
+            <div class="invalid-feedback">Model is required.</div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label">Brand <span class="text-danger">*</span></label>
+            <input type="text" formControlName="brand" class="form-control"
+              [class.is-invalid]="form.get('brand')?.invalid && form.get('brand')?.touched"
+              placeholder="e.g. Bosch">
+            <div class="invalid-feedback">Brand is required.</div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label">Manufacturing Year <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+              <input type="number" formControlName="manufacturingYear" class="form-control"
+                [class.is-invalid]="form.get('manufacturingYear')?.invalid && form.get('manufacturingYear')?.touched"
+                placeholder="e.g. 2022" min="1900" max="2100">
+              <div class="invalid-feedback">
+                <ng-container *ngIf="form.get('manufacturingYear')?.errors?.['required']">Year is required.</ng-container>
+                <ng-container *ngIf="form.get('manufacturingYear')?.errors?.['pattern']">Enter a valid 4-digit year.</ng-container>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label d-block">Type <span class="text-danger">*</span></label>
+            <div class="btn-group w-100" role="group">
+              <button type="button" class="btn"
+                [class.btn-primary]="isSinglePart" [class.btn-light]="!isSinglePart"
+                [class.border]="!isSinglePart"
+                (click)="form.get('type')?.setValue('single')">
+                <i class="bi bi-box me-1"></i> Single Part
+              </button>
+              <button type="button" class="btn"
+                [class.btn-primary]="isMachine" [class.btn-light]="!isMachine"
+                [class.border]="!isMachine"
+                (click)="form.get('type')?.setValue('machine')">
+                <i class="bi bi-gear me-1"></i> Machine
+              </button>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Barcode</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+              <input type="text" formControlName="barcode" class="form-control"
+                placeholder="Scan or enter barcode...">
+            </div>
+            <div class="form-text">Optional — scan with a barcode reader or type manually.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Notes</label>
+            <textarea formControlName="notes" class="form-control" rows="2" placeholder="Optional notes about this product..."></textarea>
+          </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Single Part Fields -->
+        <div *ngIf="isSinglePart">
+          <div class="d-flex align-items-center gap-2 mb-4">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary flex-shrink-0"
+              style="width:32px;height:32px"><i class="bi bi-cash-coin"></i></span>
+            <h6 class="text-uppercase text-muted fw-bold mb-0" style="letter-spacing:.06em;font-size:.78rem">Pricing & Stock</h6>
+          </div>
+          <div class="row g-3">
+
+            <div class="col-12 col-md-6">
+              <label class="form-label">Unit Price (PKR) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text">Rs.</span>
+                <input type="number" formControlName="unitPrice" class="form-control"
+                  [class.is-invalid]="form.get('unitPrice')?.invalid && form.get('unitPrice')?.touched"
+                  placeholder="0" min="0">
+                <div class="invalid-feedback">Unit price is required.</div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label">Min Stock</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-exclamation-triangle"></i></span>
+                <input type="number" formControlName="minStock" class="form-control"
+                  placeholder="0" min="0">
+              </div>
+              <div class="form-text">Alert threshold for low stock.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Machine Fields -->
+        <div *ngIf="isMachine">
+          <div class="d-flex align-items-center gap-2 mb-4">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary flex-shrink-0"
+              style="width:32px;height:32px"><i class="bi bi-gear-wide-connected"></i></span>
+            <h6 class="text-uppercase text-muted fw-bold mb-0" style="letter-spacing:.06em;font-size:.78rem">Machine Details</h6>
+          </div>
+          <div class="row g-3">
+
+            <div class="col-12 col-md-4">
+              <label class="form-label">Serial No <span class="text-danger">*</span></label>
+              <input type="text" formControlName="serialNo" class="form-control"
+                [class.is-invalid]="form.get('serialNo')?.invalid && form.get('serialNo')?.touched"
+                placeholder="e.g. SN-20240001">
+              <div class="invalid-feedback">Serial number is required.</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label">Condition <span class="text-danger">*</span></label>
+              <select formControlName="condition" class="form-select"
+                [class.is-invalid]="form.get('condition')?.invalid && form.get('condition')?.touched">
+                <option value="">-- Select --</option>
+                <option value="New">New</option>
+                <option value="Used">Used</option>
+                <option value="Refurbished">Refurbished</option>
+              </select>
+              <div class="invalid-feedback">Condition is required.</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label">Accessories</label>
+              <select formControlName="accessories" class="form-select">
+                <option value="">-- None --</option>
+                <option value="Probe">Probe</option>
+                <option value="Printers">Printers</option>
+                <option value="None">None</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-4" *ngIf="form.get('accessories')?.value === 'Printers'">
+              <label class="form-label">Printer Type <span class="text-danger">*</span></label>
+              <input type="text" formControlName="printerType" class="form-control"
+                [class.is-invalid]="form.get('printerType')?.invalid && form.get('printerType')?.touched"
+                placeholder="e.g. Thermal Receipt Printer">
+              <div class="invalid-feedback">Printer type is required.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex gap-2 mt-5 pt-4 border-top">
+          <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+            <i *ngIf="!loading" class="bi bi-check2-circle"></i>
+            {{ editMode ? 'Update Product' : 'Save Product' }}
+          </button>
+          <button type="button" class="btn btn-light border px-4" (click)="resetForm()" [disabled]="loading">
+            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
