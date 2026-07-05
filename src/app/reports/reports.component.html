@@ -48,10 +48,30 @@
         <i class="bi bi-sliders me-1"></i>Stock Adjustments
       </button>
     </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='profitloss'" (click)="setTab('profitloss')">
+        <i class="bi bi-graph-up-arrow me-1"></i>Profit &amp; Loss
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='walking'" (click)="setTab('walking')">
+        <i class="bi bi-cash-stack me-1"></i>Cash / Walking Sales
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='productsales'" (click)="setTab('productsales')">
+        <i class="bi bi-box-seam me-1"></i>Product-wise Sales
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-semibold" [class.active]="activeTab==='stockval'" (click)="setTab('stockval')">
+        <i class="bi bi-boxes me-1"></i>Stock Valuation
+      </button>
+    </li>
   </ul>
 
   <!-- Date Filter Bar (Sales + Purchase + Returns + Adjustments tabs) -->
-  <div *ngIf="activeTab==='sales' || activeTab==='purchases' || activeTab==='salereturns' || activeTab==='purchasereturns' || activeTab==='stockadjust'"
+  <div *ngIf="activeTab==='sales' || activeTab==='purchases' || activeTab==='salereturns' || activeTab==='purchasereturns' || activeTab==='stockadjust' || activeTab==='profitloss' || activeTab==='walking' || activeTab==='productsales'"
     class="card border-0 shadow-sm mb-4 d-print-none">
     <div class="card-body py-3">
       <div class="row g-3 align-items-end">
@@ -151,13 +171,13 @@
       </div>
       <div class="col-6 col-md-4">
         <div class="card border-0 shadow-sm text-center py-4">
-          <p class="text-muted small mb-1 text-uppercase fw-semibold">Net Profit (Est.)</p>
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Sales − Purchases</p>
           <h3 class="fw-bold mb-0"
             [class.text-success]="(summary.overall.totalSales - summary.overall.totalPurchases) >= 0"
             [class.text-danger]="(summary.overall.totalSales - summary.overall.totalPurchases) < 0">
             Rs. {{(summary.overall.totalSales - summary.overall.totalPurchases) | number:'1.0-0'}}
           </h3>
-          <small class="text-muted">Sales − Purchases</small>
+          <small class="text-muted">Cash flow only — asli profit ke liye <b>Profit &amp; Loss</b> tab dekhein</small>
         </div>
       </div>
     </div>
@@ -634,6 +654,434 @@
               </td>
             </tr>
           </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PROFIT & LOSS TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='profitloss' && profitLoss">
+
+    <!-- Headline Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Sales</p>
+            <h4 class="fw-bold mb-0 text-primary">Rs. {{profitLoss.totalSales | number:'1.0-0'}}</h4>
+            <small class="text-muted">{{profitLoss.invoiceCount}} invoices</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-warning border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Cost of Goods Sold</p>
+            <h4 class="fw-bold mb-0 text-warning">Rs. {{profitLoss.totalCOGS | number:'1.0-0'}}</h4>
+            <small class="text-muted">{{profitLoss.itemsSold}} items sold</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-info border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Gross Profit</p>
+            <h4 class="fw-bold mb-0 text-info">Rs. {{profitLoss.grossProfit | number:'1.0-0'}}</h4>
+            <small class="text-muted">Sale value − COGS</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-4"
+             [class.border-success]="profitLoss.netProfit >= 0" [class.border-danger]="profitLoss.netProfit < 0">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Net Profit</p>
+            <h4 class="fw-bold mb-0" [class.text-success]="profitLoss.netProfit >= 0" [class.text-danger]="profitLoss.netProfit < 0">
+              Rs. {{profitLoss.netProfit | number:'1.0-0'}}
+            </h4>
+            <small class="text-muted">Margin: {{profitLoss.margin}}%</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P&L Statement -->
+    <div class="row g-4">
+      <div class="col-md-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white fw-bold py-3"><i class="bi bi-calculator me-2"></i>Profit &amp; Loss Statement</div>
+          <div class="card-body">
+            <table class="table table-sm align-middle mb-0">
+              <tbody>
+                <tr>
+                  <td class="text-muted">Items Sale Value</td>
+                  <td class="text-end fw-semibold">Rs. {{profitLoss.itemsValue | number:'1.0-0'}}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Less: Cost of Goods Sold</td>
+                  <td class="text-end fw-semibold text-danger">− Rs. {{profitLoss.totalCOGS | number:'1.0-0'}}</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="fw-bold">Gross Profit</td>
+                  <td class="text-end fw-bold text-info">Rs. {{profitLoss.grossProfit | number:'1.0-0'}}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Less: Discount Given</td>
+                  <td class="text-end fw-semibold text-danger">− Rs. {{profitLoss.totalDiscount | number:'1.0-0'}}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Add: Delivery Charges</td>
+                  <td class="text-end fw-semibold text-success">+ Rs. {{profitLoss.totalDelivery | number:'1.0-0'}}</td>
+                </tr>
+                <tr class="border-top border-dark border-2">
+                  <td class="fw-bold fs-6">Net Profit</td>
+                  <td class="text-end fw-bold fs-6" [class.text-success]="profitLoss.netProfit >= 0" [class.text-danger]="profitLoss.netProfit < 0">
+                    Rs. {{profitLoss.netProfit | number:'1.0-0'}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="alert alert-light border small text-muted mt-3 mb-0">
+              <i class="bi bi-info-circle me-1"></i>
+              Ye asli profit hai — sirf <b>bik-e-hue</b> maal ki cost count hoti hai, na ke total purchases. Stock me pada maal loss nahi ganna jata.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-product breakdown -->
+      <div class="col-md-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-box-seam me-2"></i>Product-wise Profit</span>
+            <span class="text-muted small" *ngIf="fromDate || toDate">{{fromDate || 'Start'}} → {{toDate || 'Today'}}</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size:0.85rem">
+              <thead class="table-dark">
+                <tr>
+                  <th class="ps-3">Product</th>
+                  <th class="text-center">Qty Sold</th>
+                  <th class="text-end">Revenue</th>
+                  <th class="text-end">Cost</th>
+                  <th class="text-end pe-3">Profit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of profitLoss.products">
+                  <td class="ps-3 fw-semibold">{{p.productName}}<div class="text-muted" style="font-size:0.72rem">{{p.model}}</div></td>
+                  <td class="text-center">{{p.qtySold}}</td>
+                  <td class="text-end">Rs. {{p.revenue | number:'1.0-0'}}</td>
+                  <td class="text-end text-muted">Rs. {{p.cost | number:'1.0-0'}}</td>
+                  <td class="text-end pe-3 fw-bold" [class.text-success]="p.profit >= 0" [class.text-danger]="p.profit < 0">
+                    Rs. {{p.profit | number:'1.0-0'}}
+                  </td>
+                </tr>
+                <tr *ngIf="profitLoss.products.length === 0">
+                  <td colspan="5" class="text-center py-5 text-muted">
+                    <i class="bi bi-graph-up-arrow fs-2 d-block mb-2 opacity-25"></i>
+                    No sales found for this period.
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="table-dark fw-bold" *ngIf="profitLoss.products.length > 0">
+                <tr>
+                  <td class="ps-3">Total</td>
+                  <td class="text-center">{{profitLoss.itemsSold}}</td>
+                  <td class="text-end">Rs. {{profitLoss.itemsValue | number:'1.0-0'}}</td>
+                  <td class="text-end">Rs. {{profitLoss.totalCOGS | number:'1.0-0'}}</td>
+                  <td class="text-end pe-3">Rs. {{profitLoss.grossProfit | number:'1.0-0'}}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CASH / WALKING SALES TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='walking' && walkingSales">
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Cash Sales</p>
+            <h4 class="fw-bold mb-0">Rs. {{walkingSales.totalSales | number:'1.0-0'}}</h4>
+            <small class="text-muted">{{walkingSales.count}} invoices</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Amount Received</p>
+            <h4 class="fw-bold mb-0 text-success">Rs. {{walkingSales.totalReceived | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Balance Due (Cash)</p>
+            <h4 class="fw-bold mb-0 text-danger">Rs. {{walkingSales.totalDue | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cash Sales Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+        <h6 class="fw-bold mb-0"><i class="bi bi-cash-stack me-2"></i>Cash / Walking Sales — {{walkingSales.count}} invoices</h6>
+        <span class="text-muted small" *ngIf="fromDate || toDate">{{fromDate || 'Start'}} → {{toDate || 'Today'}}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Date</th>
+              <th>Invoice #</th>
+              <th>Customer Name</th>
+              <th class="text-end">Grand Total</th>
+              <th class="text-end">Received</th>
+              <th class="text-end">Balance Due</th>
+              <th class="text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of walkingSales.sales">
+              <td class="ps-3 small text-nowrap">{{s.createdAt | date:'dd MMM yyyy'}}</td>
+              <td><span class="badge bg-light text-dark border fw-bold">{{s.invoiceNumber}}</span></td>
+              <td class="small fw-semibold">{{s.customerName || 'Walking Customer'}}</td>
+              <td class="text-end fw-semibold">Rs. {{s.grandTotal | number:'1.0-0'}}</td>
+              <td class="text-end text-success fw-semibold">Rs. {{s.amountReceived | number:'1.0-0'}}</td>
+              <td class="text-end fw-bold"
+                [class.text-danger]="(s.grandTotal - s.amountReceived) > 0"
+                [class.text-success]="(s.grandTotal - s.amountReceived) <= 0">
+                Rs. {{(s.grandTotal - s.amountReceived) | number:'1.0-0'}}
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill"
+                  [class.bg-success]="(s.grandTotal - s.amountReceived) <= 0"
+                  [class.bg-warning]="(s.grandTotal - s.amountReceived) > 0 && s.amountReceived > 0"
+                  [class.bg-danger]="s.amountReceived <= 0">
+                  {{(s.grandTotal - s.amountReceived) <= 0 ? 'Paid' : s.amountReceived > 0 ? 'Partial' : 'Unpaid'}}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="walkingSales.sales.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-cash-stack fs-2 d-block mb-2 opacity-25"></i>
+                No cash / walking sales found for this period.
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-dark fw-bold" *ngIf="walkingSales.sales.length > 0">
+            <tr>
+              <td colspan="3" class="ps-3">Total ({{walkingSales.count}} records)</td>
+              <td class="text-end">Rs. {{walkingSales.totalSales | number:'1.0-0'}}</td>
+              <td class="text-end text-success">Rs. {{walkingSales.totalReceived | number:'1.0-0'}}</td>
+              <td class="text-end text-danger">Rs. {{walkingSales.totalDue | number:'1.0-0'}}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PRODUCT-WISE SALES TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='productsales' && productSales">
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-secondary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Units Sold</p>
+            <h4 class="fw-bold mb-0">{{productSales.totalQty}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Revenue</p>
+            <h4 class="fw-bold mb-0 text-primary">Rs. {{productSales.totalRevenue | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-warning border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Cost (COGS)</p>
+            <h4 class="fw-bold mb-0 text-warning">Rs. {{productSales.totalCost | number:'1.0-0'}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-4"
+             [class.border-success]="productSales.totalProfit >= 0" [class.border-danger]="productSales.totalProfit < 0">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Profit / Loss</p>
+            <h4 class="fw-bold mb-0" [class.text-success]="productSales.totalProfit >= 0" [class.text-danger]="productSales.totalProfit < 0">
+              Rs. {{productSales.totalProfit | number:'1.0-0'}}
+            </h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+        <h6 class="fw-bold mb-0"><i class="bi bi-box-seam me-2"></i>Product-wise Sales — {{productSales.products.length}} products</h6>
+        <span class="text-muted small" *ngIf="fromDate || toDate">{{fromDate || 'Start'}} → {{toDate || 'Today'}}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.85rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Product</th>
+              <th class="text-center">Qty Sold</th>
+              <th class="text-end">Avg Price</th>
+              <th class="text-end">Revenue</th>
+              <th class="text-end">Cost</th>
+              <th class="text-end">Profit / Loss</th>
+              <th class="text-end pe-3">Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of productSales.products">
+              <td class="ps-3 fw-semibold">{{p.productName}}
+                <div class="text-muted" style="font-size:0.72rem">{{p.model}} <span *ngIf="p.type==='machine'" class="badge bg-info-subtle text-info ms-1">Machine</span></div>
+              </td>
+              <td class="text-center">{{p.qtySold}}</td>
+              <td class="text-end text-muted">Rs. {{p.avgSalePrice | number:'1.0-0'}}</td>
+              <td class="text-end fw-semibold">Rs. {{p.revenue | number:'1.0-0'}}</td>
+              <td class="text-end text-muted">Rs. {{p.cost | number:'1.0-0'}}</td>
+              <td class="text-end fw-bold" [class.text-success]="p.profit >= 0" [class.text-danger]="p.profit < 0">
+                Rs. {{p.profit | number:'1.0-0'}}
+              </td>
+              <td class="text-end pe-3" [class.text-success]="p.profit >= 0" [class.text-danger]="p.profit < 0">{{p.margin}}%</td>
+            </tr>
+            <tr *ngIf="productSales.products.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-box-seam fs-2 d-block mb-2 opacity-25"></i>
+                No product sales found for this period.
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-dark fw-bold" *ngIf="productSales.products.length > 0">
+            <tr>
+              <td class="ps-3">Total</td>
+              <td class="text-center">{{productSales.totalQty}}</td>
+              <td></td>
+              <td class="text-end">Rs. {{productSales.totalRevenue | number:'1.0-0'}}</td>
+              <td class="text-end">Rs. {{productSales.totalCost | number:'1.0-0'}}</td>
+              <td class="text-end">Rs. {{productSales.totalProfit | number:'1.0-0'}}</td>
+              <td class="pe-3"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STOCK VALUATION TAB ===================== -->
+  <div *ngIf="!loading && activeTab==='stockval' && stockValuation">
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-secondary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Units in Stock</p>
+            <h4 class="fw-bold mb-0">{{stockValuation.totalUnits}}</h4>
+            <small class="text-muted">{{stockValuation.productCount}} products</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-warning border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Stock Value (at Cost)</p>
+            <h4 class="fw-bold mb-0 text-warning">Rs. {{stockValuation.totalCostValue | number:'1.0-0'}}</h4>
+            <small class="text-muted">Aapki investment</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-primary border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Stock Value (at Sale)</p>
+            <h4 class="fw-bold mb-0 text-primary">Rs. {{stockValuation.totalSaleValue | number:'1.0-0'}}</h4>
+            <small class="text-muted">Poora bikne par</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body py-3">
+            <p class="text-muted small mb-1 text-uppercase fw-semibold">Potential Profit</p>
+            <h4 class="fw-bold mb-0 text-success">Rs. {{stockValuation.totalPotentialProfit | number:'1.0-0'}}</h4>
+            <small class="text-muted">Sale − Cost value</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-boxes me-2"></i>Stock Valuation — {{stockValuation.productCount}} products</h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.85rem">
+          <thead class="table-dark">
+            <tr>
+              <th class="ps-3">Product</th>
+              <th class="text-center">Stock</th>
+              <th class="text-end">Cost Price</th>
+              <th class="text-end">Sale Price</th>
+              <th class="text-end">Stock Value (Cost)</th>
+              <th class="text-end">Stock Value (Sale)</th>
+              <th class="text-end pe-3">Potential Profit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of stockValuation.rows">
+              <td class="ps-3 fw-semibold">{{r.productName}}
+                <div class="text-muted" style="font-size:0.72rem">{{r.model}} <span *ngIf="r.type==='machine'" class="badge bg-info-subtle text-info ms-1">Machine</span></div>
+              </td>
+              <td class="text-center fw-bold" [class.text-danger]="r.currentStock<=0">{{r.currentStock}}</td>
+              <td class="text-end text-muted">Rs. {{r.unitPrice | number:'1.0-0'}}</td>
+              <td class="text-end text-muted">Rs. {{r.salePrice | number:'1.0-0'}}</td>
+              <td class="text-end fw-semibold">Rs. {{r.costValue | number:'1.0-0'}}</td>
+              <td class="text-end fw-semibold">Rs. {{r.saleValue | number:'1.0-0'}}</td>
+              <td class="text-end pe-3 fw-bold" [class.text-success]="r.potentialProfit >= 0" [class.text-danger]="r.potentialProfit < 0">
+                Rs. {{r.potentialProfit | number:'1.0-0'}}
+              </td>
+            </tr>
+            <tr *ngIf="stockValuation.rows.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-boxes fs-2 d-block mb-2 opacity-25"></i>
+                No products found.
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-dark fw-bold" *ngIf="stockValuation.rows.length > 0">
+            <tr>
+              <td class="ps-3">Total ({{stockValuation.totalUnits}} units)</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="text-end">Rs. {{stockValuation.totalCostValue | number:'1.0-0'}}</td>
+              <td class="text-end">Rs. {{stockValuation.totalSaleValue | number:'1.0-0'}}</td>
+              <td class="text-end pe-3 text-success">Rs. {{stockValuation.totalPotentialProfit | number:'1.0-0'}}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>

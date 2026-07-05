@@ -38,8 +38,9 @@ export class AddSaleComponent implements OnInit {
       customerName: [''], 
       invoiceNumber: ['INV-' + Math.floor(1000 + Math.random() * 9000)],
       date: [new Date().toISOString().substring(0, 10), Validators.required],
-      items: this.fb.array([]), 
+      items: this.fb.array([]),
       discount: [0],
+      deliveryCharges: [0],
       amountReceived: [0]
     });
   }
@@ -71,6 +72,7 @@ export class AddSaleComponent implements OnInit {
           invoiceNumber: res.invoiceNumber,
           date: res.date.substring(0, 10),
           discount: res.discount,
+          deliveryCharges: res.deliveryCharges || 0,
           amountReceived: res.amountReceived
         });
 
@@ -151,12 +153,13 @@ export class AddSaleComponent implements OnInit {
       qtyCtrl?.setValue(qtyCtrl.value + 1);
       this.updateLineTotal(existingIndex);
     } else {
+      const defaultPrice = product.salePrice || product.unitPrice || 0;
       this.items.push(this.fb.group({
         productId: [product._id, Validators.required],
         productName: [product.productName],
         quantity: [1, [Validators.required, Validators.min(1)]],
-        salePrice: [product.unitPrice || 0, Validators.required],
-        lineTotal: [product.unitPrice || 0],
+        salePrice: [defaultPrice, Validators.required],
+        lineTotal: [defaultPrice],
         availableStock: [product.currentStock || 0]
       }));
       this.calculateTotals();
@@ -172,7 +175,9 @@ export class AddSaleComponent implements OnInit {
 
   calculateTotals() {
     this.subTotal = this.items.controls.reduce((acc, ctrl) => acc + (ctrl.get('lineTotal')?.value || 0), 0);
-    this.grandTotal = this.subTotal - (this.saleForm.get('discount')?.value || 0);
+    const discount = Number(this.saleForm.get('discount')?.value) || 0;
+    const delivery = Number(this.saleForm.get('deliveryCharges')?.value) || 0;
+    this.grandTotal = this.subTotal - discount + delivery;
   }
 
   removeItem(index: number) {
@@ -243,6 +248,7 @@ saveSale() {
       invoiceNumber: 'INV-' + Math.floor(1000 + Math.random() * 9000),
       date: new Date().toISOString().substring(0, 10),
       discount: 0,
+      deliveryCharges: 0,
       amountReceived: 0
     });
     this.subTotal = 0;

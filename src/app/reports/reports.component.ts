@@ -21,6 +21,10 @@ export class ReportsComponent implements OnInit {
   saleReturns: any[] = [];
   purchaseReturns: any[] = [];
   stockAdjustments: any = null;
+  profitLoss: any = null;
+  walkingSales: any = null;
+  productSales: any = null;
+  stockValuation: any = null;
 
   loading = false;
 
@@ -96,6 +100,30 @@ export class ReportsComponent implements OnInit {
       .subscribe({ next: d => { this.stockAdjustments = d; this.loading = false; }, error: () => this.loading = false });
   }
 
+  loadProfitLoss() {
+    this.loading = true;
+    this.http.get<any>(`${environment.baseURL}/reports/profit-loss`, { headers: this.headers, params: this.rangeParams() })
+      .subscribe({ next: d => { this.profitLoss = d; this.loading = false; }, error: () => this.loading = false });
+  }
+
+  loadWalkingSales() {
+    this.loading = true;
+    this.http.get<any>(`${environment.baseURL}/reports/walking-sales`, { headers: this.headers, params: this.rangeParams() })
+      .subscribe({ next: d => { this.walkingSales = d; this.loading = false; }, error: () => this.loading = false });
+  }
+
+  loadProductSales() {
+    this.loading = true;
+    this.http.get<any>(`${environment.baseURL}/reports/product-sales`, { headers: this.headers, params: this.rangeParams() })
+      .subscribe({ next: d => { this.productSales = d; this.loading = false; }, error: () => this.loading = false });
+  }
+
+  loadStockValuation() {
+    this.loading = true;
+    this.http.get<any>(`${environment.baseURL}/reports/stock-valuation`, { headers: this.headers })
+      .subscribe({ next: d => { this.stockValuation = d; this.loading = false; }, error: () => this.loading = false });
+  }
+
   get saleReturnsTotal(): number { return this.saleReturns.reduce((s, r) => s + (r.totalAmount || 0), 0); }
   get purchaseReturnsTotal(): number { return this.purchaseReturns.reduce((s, r) => s + (r.totalAmount || 0), 0); }
 
@@ -108,6 +136,10 @@ export class ReportsComponent implements OnInit {
     else if (tab === 'salereturns') this.loadSaleReturns();
     else if (tab === 'purchasereturns') this.loadPurchaseReturns();
     else if (tab === 'stockadjust') this.loadStockAdjustments();
+    else if (tab === 'profitloss') this.loadProfitLoss();
+    else if (tab === 'walking') this.loadWalkingSales();
+    else if (tab === 'productsales') this.loadProductSales();
+    else if (tab === 'stockval') this.loadStockValuation();
   }
 
   applyFilter() {
@@ -116,6 +148,9 @@ export class ReportsComponent implements OnInit {
     else if (this.activeTab === 'salereturns') this.loadSaleReturns();
     else if (this.activeTab === 'purchasereturns') this.loadPurchaseReturns();
     else if (this.activeTab === 'stockadjust') this.loadStockAdjustments();
+    else if (this.activeTab === 'profitloss') this.loadProfitLoss();
+    else if (this.activeTab === 'walking') this.loadWalkingSales();
+    else if (this.activeTab === 'productsales') this.loadProductSales();
   }
 
   setQuickRange(range: string) {

@@ -100,13 +100,11 @@
               </span>
             </td>
             <td>
-              <div *ngIf="product.type === 'single'">
-                <div class="fw-bold text-primary">Qty: {{ product.currentStock ?? product.initialStock ?? 0 }}</div>
-                <small class="text-muted">Barcode: {{ product.barcode || 'N/A' }}</small>
-              </div>
-              <!-- <button *ngIf="product.type === 'machine'" class="btn btn-sm btn-link p-0 text-decoration-none" (click)="openLinkedParts(product)">
-                🔗 {{ product.parts?.length || 0 }} Linked Parts
-              </button> -->
+              <div class="fw-bold text-primary">Qty: {{ product.currentStock ?? product.initialStock ?? 0 }}</div>
+              <small class="text-muted d-block">Barcode: {{ product.barcode || 'N/A' }}</small>
+              <small class="text-muted d-block" *ngIf="product.type === 'machine' && product.serialNo">
+                Serial: {{ product.serialNo }}
+              </small>
             </td>
             <td class="text-end pe-4">
               <button class="btn btn-sm btn-light border me-2" (click)="editProduct(product)">✏️</button>

@@ -28,8 +28,7 @@ export class AddCustomerComponent implements OnInit {
       phone: [''],
       address: [''],
       email: [''],
-      openingBalance: [0],
-      isWalking: [false]
+      openingBalance: [0]
     });
 
     // 2. Check if ID exists in URL (Edit Mode)

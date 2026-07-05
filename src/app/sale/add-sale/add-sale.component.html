@@ -138,6 +138,11 @@
           <input type="number" class="form-control text-end shadow-sm" formControlName="discount" (input)="calculateTotals()">
         </div>
 
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-bold">Delivery Charges</label>
+          <input type="number" class="form-control text-end shadow-sm" formControlName="deliveryCharges" (input)="calculateTotals()">
+        </div>
+
         <hr>
 
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -246,6 +251,10 @@
               <tr>
                 <td class="text-muted px-0">Discount</td>
                 <td class="text-end fw-bold px-0 text-danger">- {{savedSale.discount | currency:'Rs. '}}</td>
+              </tr>
+              <tr *ngIf="savedSale.deliveryCharges > 0">
+                <td class="text-muted px-0">Delivery Charges</td>
+                <td class="text-end fw-bold px-0">+ {{savedSale.deliveryCharges | currency:'Rs. '}}</td>
               </tr>
               <tr class="border-top border-dark border-2">
                 <td class="px-0 pt-3"><h4 class="mb-0 fw-bold text-dark">Grand Total</h4></td>

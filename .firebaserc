@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "eb-store-189a5",
-    "y": "eb-store-189a5",
+    "default": "machine-web-85893",
+    "y": "machine-web-85893",
     "staging": "elahi-15d43"
   },
   "targets": {

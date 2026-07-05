@@ -8,7 +8,8 @@ export type ProductType = 'single' | 'machine';
 
 @Component({
   selector: 'app-add-product',
-  templateUrl: './add-product.component.html'
+  templateUrl: './add-product.component.html',
+  styleUrls: ['./add-product.component.scss']
 })
 export class AddProductComponent implements OnInit {
   form!: FormGroup;
@@ -54,6 +55,7 @@ export class AddProductComponent implements OnInit {
       barcode:           [''],
       notes:             [''],
       unitPrice:         [null],
+      salePrice:         [null],
       minStock:          [null],
       parts:             this.fb.array([]),
       serialNo:          [''],
@@ -82,6 +84,7 @@ private loadProductForEdit(id: string): void {
         barcode: product.barcode || '',
         notes: product.notes || '',
         unitPrice: product.unitPrice,
+        salePrice: product.salePrice,
         minStock: product.minStock,
         serialNo: product.serialNo || '',
         condition: product.condition || '',
@@ -128,17 +131,18 @@ private loadProductForEdit(id: string): void {
   removePart(index: number): void { this.partsArray.removeAt(index); }
 
   updateValidation(type: ProductType): void {
-    const singleFields  = ['unitPrice'];
     const machineFields = ['serialNo', 'condition'];
 
+    // Purchase price aur Sale price dono types (single + machine) ke liye required hain
+    this.form.get('unitPrice')?.setValidators([Validators.required, Validators.min(0)]);
+    this.form.get('salePrice')?.setValidators([Validators.required, Validators.min(0)]);
+
     if (type === 'single') {
-      singleFields.forEach(f => this.form.get(f)?.setValidators([Validators.required, Validators.min(0)]));
       machineFields.forEach(f => { this.form.get(f)?.clearValidators(); this.form.get(f)?.setValue(''); });
       this.partsArray.clear();
     } else {
       machineFields.forEach(f => this.form.get(f)?.setValidators(Validators.required));
       this.partsArray.clearValidators();
-      singleFields.forEach(f => { this.form.get(f)?.clearValidators(); this.form.get(f)?.setValue(null); });
     }
     Object.keys(this.form.controls).forEach(key => this.form.get(key)?.updateValueAndValidity({ emitEvent: false }));
   }
@@ -181,8 +185,7 @@ submit(): void {
         serialNo: raw.serialNo || 'N/A'
       }];
     }
-    delete payload.unitPrice;
-    delete payload.minStock;
+    // Machine ke liye bhi unitPrice aur minStock save honge (delete nahi karte)
   }
 
   const request$ = this.editMode

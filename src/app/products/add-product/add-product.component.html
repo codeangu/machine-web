@@ -1,158 +1,187 @@
-<div class="container-fluid py-4 px-4">
+<div class="ap-wrap">
 
-  <!-- Page Header -->
-  <div class="d-flex align-items-center gap-3 mb-4">
-    <button type="button" class="btn btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0"
-      style="width:40px;height:40px" routerLink="/products/list">
-      <i class="bi bi-arrow-left fs-5"></i>
-    </button>
-    <div>
-      <h2 class="fw-bold mb-1 text-dark">{{ editMode ? 'Edit Product' : 'Add New Product' }}</h2>
-      <p class="text-muted mb-0 small">{{ editMode ? 'Update product details below.' : 'Fill in the details to create a new product or machine entry.' }}</p>
+  <!-- ===== Hero Header ===== -->
+  <div class="ap-hero">
+    <div class="ap-hero-inner">
+      <button type="button" class="ap-back" routerLink="/products/list" title="Back to products">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <div class="flex-grow-1">
+        <div class="ap-eyebrow">Products <i class="bi bi-chevron-right mx-1"></i> {{ editMode ? 'Edit' : 'New Entry' }}</div>
+        <h1 class="ap-title">{{ editMode ? 'Edit Product' : 'Add New Product' }}</h1>
+        <p class="ap-subtitle">{{ editMode ? 'Update the details of this product or machine.' : 'Create a new product or machine entry for your inventory.' }}</p>
+      </div>
+      <div class="ap-hero-icon">
+        <i class="bi" [class.bi-box-seam]="isSinglePart" [class.bi-gear-wide-connected]="isMachine"></i>
+      </div>
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm">
-    <div class="card-body p-4 p-md-5">
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="row g-4">
 
-        <!-- Basic Info -->
-        <div class="d-flex align-items-center gap-2 mb-4">
-          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary flex-shrink-0"
-            style="width:32px;height:32px"><i class="bi bi-box-seam"></i></span>
-          <h6 class="text-uppercase text-muted fw-bold mb-0" style="letter-spacing:.06em;font-size:.78rem">Basic Information</h6>
-        </div>
+      <!-- ===== Main Column ===== -->
+      <div class="col-lg-8">
 
-        <div class="row g-3">
-
-          <div class="col-12 col-md-6">
-            <label class="form-label">Product Name <span class="text-danger">*</span></label>
-            <input type="text" formControlName="productName" class="form-control"
-              [class.is-invalid]="form.get('productName')?.invalid && form.get('productName')?.touched"
-              placeholder="e.g. Hydraulic Pump">
-            <div class="invalid-feedback">Product name is required.</div>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <label class="form-label">Model <span class="text-danger">*</span></label>
-            <input type="text" formControlName="model" class="form-control"
-              [class.is-invalid]="form.get('model')?.invalid && form.get('model')?.touched"
-              placeholder="e.g. HP-2000">
-            <div class="invalid-feedback">Model is required.</div>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <label class="form-label">Brand <span class="text-danger">*</span></label>
-            <input type="text" formControlName="brand" class="form-control"
-              [class.is-invalid]="form.get('brand')?.invalid && form.get('brand')?.touched"
-              placeholder="e.g. Bosch">
-            <div class="invalid-feedback">Brand is required.</div>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <label class="form-label">Manufacturing Year <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-              <input type="number" formControlName="manufacturingYear" class="form-control"
-                [class.is-invalid]="form.get('manufacturingYear')?.invalid && form.get('manufacturingYear')?.touched"
-                placeholder="e.g. 2022" min="1900" max="2100">
-              <div class="invalid-feedback">
-                <ng-container *ngIf="form.get('manufacturingYear')?.errors?.['required']">Year is required.</ng-container>
-                <ng-container *ngIf="form.get('manufacturingYear')?.errors?.['pattern']">Enter a valid 4-digit year.</ng-container>
-              </div>
+        <!-- Basic Information -->
+        <div class="ap-card">
+          <div class="ap-section-head">
+            <span class="ap-section-ic"><i class="bi bi-info-circle"></i></span>
+            <div>
+              <h6 class="ap-section-title">Basic Information</h6>
+              <span class="ap-section-sub">Product identity & classification</span>
             </div>
           </div>
 
-          <div class="col-12 col-md-4">
-            <label class="form-label d-block">Type <span class="text-danger">*</span></label>
-            <div class="btn-group w-100" role="group">
-              <button type="button" class="btn"
-                [class.btn-primary]="isSinglePart" [class.btn-light]="!isSinglePart"
-                [class.border]="!isSinglePart"
-                (click)="form.get('type')?.setValue('single')">
-                <i class="bi bi-box me-1"></i> Single Part
-              </button>
-              <button type="button" class="btn"
-                [class.btn-primary]="isMachine" [class.btn-light]="!isMachine"
-                [class.border]="!isMachine"
-                (click)="form.get('type')?.setValue('machine')">
-                <i class="bi bi-gear me-1"></i> Machine
-              </button>
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <label class="form-label">Barcode</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
-              <input type="text" formControlName="barcode" class="form-control"
-                placeholder="Scan or enter barcode...">
-            </div>
-            <div class="form-text">Optional — scan with a barcode reader or type manually.</div>
-          </div>
-
-          <div class="col-12">
-            <label class="form-label">Notes</label>
-            <textarea formControlName="notes" class="form-control" rows="2" placeholder="Optional notes about this product..."></textarea>
-          </div>
-
-        </div>
-
-        <hr class="my-4">
-
-        <!-- Single Part Fields -->
-        <div *ngIf="isSinglePart">
-          <div class="d-flex align-items-center gap-2 mb-4">
-            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary flex-shrink-0"
-              style="width:32px;height:32px"><i class="bi bi-cash-coin"></i></span>
-            <h6 class="text-uppercase text-muted fw-bold mb-0" style="letter-spacing:.06em;font-size:.78rem">Pricing & Stock</h6>
-          </div>
           <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="ap-label">Product Name <span class="req">*</span></label>
+              <input type="text" formControlName="productName" class="form-control ap-input"
+                [class.is-invalid]="form.get('productName')?.invalid && form.get('productName')?.touched"
+                placeholder="e.g. Hydraulic Pump">
+              <div class="invalid-feedback">Product name is required.</div>
+            </div>
 
             <div class="col-12 col-md-6">
-              <label class="form-label">Unit Price (PKR) <span class="text-danger">*</span></label>
-              <div class="input-group">
+              <label class="ap-label">Model <span class="req">*</span></label>
+              <input type="text" formControlName="model" class="form-control ap-input"
+                [class.is-invalid]="form.get('model')?.invalid && form.get('model')?.touched"
+                placeholder="e.g. HP-2000">
+              <div class="invalid-feedback">Model is required.</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="ap-label">Brand <span class="req">*</span></label>
+              <input type="text" formControlName="brand" class="form-control ap-input"
+                [class.is-invalid]="form.get('brand')?.invalid && form.get('brand')?.touched"
+                placeholder="e.g. Bosch">
+              <div class="invalid-feedback">Brand is required.</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="ap-label">Manufacturing Year <span class="req">*</span></label>
+              <div class="input-group ap-group">
+                <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                <input type="number" formControlName="manufacturingYear" class="form-control ap-input"
+                  [class.is-invalid]="form.get('manufacturingYear')?.invalid && form.get('manufacturingYear')?.touched"
+                  placeholder="e.g. 2022" min="1900" max="2100">
+                <div class="invalid-feedback">
+                  <ng-container *ngIf="form.get('manufacturingYear')?.errors?.['required']">Year is required.</ng-container>
+                  <ng-container *ngIf="form.get('manufacturingYear')?.errors?.['pattern']">Enter a valid 4-digit year.</ng-container>
+                </div>
+              </div>
+            </div>
+
+            <!-- Type segmented toggle -->
+            <div class="col-12">
+              <label class="ap-label">Product Type <span class="req">*</span></label>
+              <div class="ap-toggle">
+                <button type="button" class="ap-toggle-btn" [class.active]="isSinglePart"
+                  (click)="form.get('type')?.setValue('single')">
+                  <i class="bi bi-box"></i>
+                  <span>
+                    <strong>Single Part</strong>
+                    <small>Spare / component</small>
+                  </span>
+                </button>
+                <button type="button" class="ap-toggle-btn" [class.active]="isMachine"
+                  (click)="form.get('type')?.setValue('machine')">
+                  <i class="bi bi-gear"></i>
+                  <span>
+                    <strong>Machine</strong>
+                    <small>Full unit with serial</small>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="ap-label">Barcode</label>
+              <div class="input-group ap-group">
+                <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+                <input type="text" formControlName="barcode" class="form-control ap-input"
+                  placeholder="Scan or enter barcode...">
+              </div>
+              <div class="ap-hint">Optional — scan with a reader or type manually.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="ap-label">Notes</label>
+              <textarea formControlName="notes" class="form-control ap-input" rows="2"
+                placeholder="Optional notes about this product..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing & Stock -->
+        <div class="ap-card">
+          <div class="ap-section-head">
+            <span class="ap-section-ic ic-green"><i class="bi bi-cash-coin"></i></span>
+            <div>
+              <h6 class="ap-section-title">Pricing &amp; Stock</h6>
+              <span class="ap-section-sub">Cost, sale rate & stock alert</span>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="ap-label">Purchase Price / Cost <span class="req">*</span></label>
+              <div class="input-group ap-group">
                 <span class="input-group-text">Rs.</span>
-                <input type="number" formControlName="unitPrice" class="form-control"
+                <input type="number" formControlName="unitPrice" class="form-control ap-input"
                   [class.is-invalid]="form.get('unitPrice')?.invalid && form.get('unitPrice')?.touched"
                   placeholder="0" min="0">
-                <div class="invalid-feedback">Unit price is required.</div>
+                <div class="invalid-feedback">Purchase price is required.</div>
               </div>
+              <div class="ap-hint">Jis rate par khareeda (COGS).</div>
             </div>
 
-            <div class="col-12 col-md-6">
-              <label class="form-label">Min Stock</label>
-              <div class="input-group">
+            <div class="col-12 col-md-4">
+              <label class="ap-label">Sale Price <span class="req">*</span></label>
+              <div class="input-group ap-group">
+                <span class="input-group-text">Rs.</span>
+                <input type="number" formControlName="salePrice" class="form-control ap-input"
+                  [class.is-invalid]="form.get('salePrice')?.invalid && form.get('salePrice')?.touched"
+                  placeholder="0" min="0">
+                <div class="invalid-feedback">Sale price is required.</div>
+              </div>
+              <div class="ap-hint">Jis rate par bechna hai.</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="ap-label">Min Stock</label>
+              <div class="input-group ap-group">
                 <span class="input-group-text"><i class="bi bi-exclamation-triangle"></i></span>
-                <input type="number" formControlName="minStock" class="form-control"
+                <input type="number" formControlName="minStock" class="form-control ap-input"
                   placeholder="0" min="0">
               </div>
-              <div class="form-text">Alert threshold for low stock.</div>
+              <div class="ap-hint">Low-stock alert threshold.</div>
             </div>
-
           </div>
         </div>
 
-        <!-- Machine Fields -->
-        <div *ngIf="isMachine">
-          <div class="d-flex align-items-center gap-2 mb-4">
-            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary flex-shrink-0"
-              style="width:32px;height:32px"><i class="bi bi-gear-wide-connected"></i></span>
-            <h6 class="text-uppercase text-muted fw-bold mb-0" style="letter-spacing:.06em;font-size:.78rem">Machine Details</h6>
+        <!-- Machine Details -->
+        <div class="ap-card ap-card-accent" *ngIf="isMachine">
+          <div class="ap-section-head">
+            <span class="ap-section-ic ic-indigo"><i class="bi bi-gear-wide-connected"></i></span>
+            <div>
+              <h6 class="ap-section-title">Machine Details</h6>
+              <span class="ap-section-sub">Serial, condition & accessories</span>
+            </div>
           </div>
-          <div class="row g-3">
 
+          <div class="row g-3">
             <div class="col-12 col-md-4">
-              <label class="form-label">Serial No <span class="text-danger">*</span></label>
-              <input type="text" formControlName="serialNo" class="form-control"
+              <label class="ap-label">Serial No <span class="req">*</span></label>
+              <input type="text" formControlName="serialNo" class="form-control ap-input"
                 [class.is-invalid]="form.get('serialNo')?.invalid && form.get('serialNo')?.touched"
                 placeholder="e.g. SN-20240001">
               <div class="invalid-feedback">Serial number is required.</div>
             </div>
 
             <div class="col-12 col-md-4">
-              <label class="form-label">Condition <span class="text-danger">*</span></label>
-              <select formControlName="condition" class="form-select"
+              <label class="ap-label">Condition <span class="req">*</span></label>
+              <select formControlName="condition" class="form-select ap-input"
                 [class.is-invalid]="form.get('condition')?.invalid && form.get('condition')?.touched">
                 <option value="">-- Select --</option>
                 <option value="New">New</option>
@@ -163,39 +192,96 @@
             </div>
 
             <div class="col-12 col-md-4">
-              <label class="form-label">Accessories</label>
-              <select formControlName="accessories" class="form-select">
+              <label class="ap-label">Accessories</label>
+              <select formControlName="accessories" class="form-select ap-input">
                 <option value="">-- None --</option>
-                <option value="Probe">Probe</option>
-                <option value="Printers">Printers</option>
-                <option value="None">None</option>
+                <option value="Probe">Probe (Ultrasound / Doppler)</option>
+                <option value="Electrodes">Electrodes / ECG Leads</option>
+                <option value="Patient Cables">Patient Cables</option>
+                <option value="BP Cuff">BP Cuff</option>
+                <option value="SpO2 Sensor">SpO2 / Pulse Oximeter Sensor</option>
+                <option value="Temperature Probe">Temperature Probe</option>
+                <option value="Oxygen Mask">Oxygen Mask / Tubing</option>
+                <option value="Suction Tube">Suction Tube</option>
+                <option value="Foot Switch">Foot Switch</option>
+                <option value="Trolley/Stand">Trolley / Stand</option>
+                <option value="Battery/Charger">Battery / Charger</option>
+                <option value="Power Adapter">Power Adapter</option>
+                <option value="Calibration Kit">Calibration Kit</option>
+                <option value="Carrying Case">Carrying Case</option>
+                <option value="Printers">Printer</option>
               </select>
             </div>
 
             <div class="col-12 col-md-4" *ngIf="form.get('accessories')?.value === 'Printers'">
-              <label class="form-label">Printer Type <span class="text-danger">*</span></label>
-              <input type="text" formControlName="printerType" class="form-control"
+              <label class="ap-label">Printer Type <span class="req">*</span></label>
+              <input type="text" formControlName="printerType" class="form-control ap-input"
                 [class.is-invalid]="form.get('printerType')?.invalid && form.get('printerType')?.touched"
                 placeholder="e.g. Thermal Receipt Printer">
               <div class="invalid-feedback">Printer type is required.</div>
             </div>
-
           </div>
         </div>
 
-        <!-- Buttons -->
-        <div class="d-flex gap-2 mt-5 pt-4 border-top">
-          <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2" [disabled]="loading">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
-            <i *ngIf="!loading" class="bi bi-check2-circle"></i>
-            {{ editMode ? 'Update Product' : 'Save Product' }}
-          </button>
-          <button type="button" class="btn btn-light border px-4" (click)="resetForm()" [disabled]="loading">
-            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
-          </button>
-        </div>
+      </div>
 
-      </form>
+      <!-- ===== Summary Sidebar ===== -->
+      <div class="col-lg-4">
+        <div class="ap-summary">
+          <div class="ap-summary-head">
+            <span class="ap-avatar">{{ (form.get('productName')?.value || 'P')[0] | uppercase }}</span>
+            <div class="overflow-hidden">
+              <div class="ap-sum-name text-truncate">{{ form.get('productName')?.value || 'New Product' }}</div>
+              <div class="ap-sum-model text-truncate">{{ form.get('model')?.value || 'Model —' }}</div>
+            </div>
+          </div>
+
+          <span class="ap-type-chip" [class.chip-machine]="isMachine">
+            <i class="bi" [class.bi-box]="isSinglePart" [class.bi-gear]="isMachine"></i>
+            {{ isMachine ? 'Machine' : 'Single Part' }}
+          </span>
+
+          <div class="ap-price-grid">
+            <div class="ap-price-cell">
+              <span class="lbl">Cost</span>
+              <span class="val">Rs. {{ (form.get('unitPrice')?.value || 0) | number:'1.0-0' }}</span>
+            </div>
+            <div class="ap-price-cell">
+              <span class="lbl">Sale</span>
+              <span class="val text-primary">Rs. {{ (form.get('salePrice')?.value || 0) | number:'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <div class="ap-profit"
+            [class.is-loss]="(form.get('salePrice')?.value - form.get('unitPrice')?.value) < 0">
+            <div>
+              <span class="lbl">Profit / unit</span>
+              <span class="val">Rs. {{ ((form.get('salePrice')?.value || 0) - (form.get('unitPrice')?.value || 0)) | number:'1.0-0' }}</span>
+            </div>
+            <div class="ap-margin" *ngIf="form.get('salePrice')?.value > 0">
+              {{ (((form.get('salePrice')?.value - form.get('unitPrice')?.value) / form.get('salePrice')?.value) * 100) | number:'1.0-0' }}%
+              <small>margin</small>
+            </div>
+          </div>
+
+          <div class="ap-actions">
+            <button type="submit" class="btn ap-btn-primary w-100" [disabled]="loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!loading" class="bi bi-check2-circle me-1"></i>
+              {{ editMode ? 'Update Product' : 'Save Product' }}
+            </button>
+            <button type="button" class="btn ap-btn-ghost w-100" (click)="resetForm()" [disabled]="loading">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+          </div>
+
+          <div class="ap-note">
+            <i class="bi bi-shield-check me-1"></i>
+            Fields marked <span class="req">*</span> are required.
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
+  </form>
 </div>

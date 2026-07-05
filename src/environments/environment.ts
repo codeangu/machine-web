@@ -4,16 +4,16 @@
 
 export const environment = {
   production: false,
-//  baseURL: 'http://localhost:5000/api',
- baseURL: 'https://machine-api-swj9.vercel.app/api',
+ baseURL: 'http://localhost:5000/api',
+//  baseURL: 'https://machine-api-swj9.vercel.app/api',
 
   firebase: {
-  apiKey: "AIzaSyDkVZSuW5ZjdbrXWeYbjNWlmNwPnx4Li08",
-  authDomain: "eb-store-189a5.firebaseapp.com",
-  projectId: "eb-store-189a5",
-  storageBucket: "eb-store-189a5.firebasestorage.app",
-  messagingSenderId: "1043844041539",
-  appId: "1:1043844041539:web:f36555f980f427c64d3df6"
+apiKey: "AIzaSyDvr0UjHeZrrvX4qJdY-a6YwOfShLqaso4",
+  authDomain: "machine-web-85893.firebaseapp.com",
+  projectId: "machine-web-85893",
+  storageBucket: "machine-web-85893.firebasestorage.app",
+  messagingSenderId: "91402490509",
+  appId: "1:91402490509:web:bd6fa3e1f44e951a8308c4"
   },
 
 
