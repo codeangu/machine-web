@@ -1,0 +1,160 @@
+<div class="container-fluid py-4 px-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">Repair Report</h4>
+      <p class="text-muted small mb-0">Repair jobs, payment &amp; status tracking</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" routerLink="/repair-product/list">
+        <i class="bi bi-list-ul me-1"></i>Job List
+      </button>
+      <button class="btn btn-primary px-4" routerLink="/repair-product/add">
+        <i class="bi bi-plus-lg me-2"></i>New Repair Job
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small mb-1">Search</label>
+          <input type="text" class="form-control form-control-sm" [(ngModel)]="searchTerm"
+                 placeholder="Job #, customer, phone, CNIC, product..." (input)="onSearchChange()">
+        </div>
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">From</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="fromDate">
+        </div>
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">To</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="toDate">
+        </div>
+        <div class="col-auto">
+          <label class="form-label fw-semibold small mb-1">Status</label>
+          <select class="form-select form-select-sm" [(ngModel)]="status">
+            <option value="">All</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary btn-sm px-3" (click)="applyFilter()"><i class="bi bi-funnel me-1"></i>Apply</button>
+        </div>
+        <div class="col d-flex gap-2 flex-wrap">
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('today')">Today</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('week')">Last 7 Days</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('month')">This Month</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setQuickRange('all')">All Time</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm border-start border-primary border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Jobs</p>
+          <h4 class="fw-bold mb-0">{{counts.all}}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm border-start border-secondary border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Cost</p>
+          <h4 class="fw-bold mb-0">Rs. {{totalCost | number:'1.0-0'}}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm border-start border-success border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Total Received</p>
+          <h4 class="fw-bold mb-0 text-success">Rs. {{totalReceived | number:'1.0-0'}}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm border-start border-danger border-4">
+        <div class="card-body py-3">
+          <p class="text-muted small mb-1 text-uppercase fw-semibold">Balance Due</p>
+          <h4 class="fw-bold mb-0 text-danger">Rs. {{totalDue | number:'1.0-0'}}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Breakdown -->
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    <span class="badge bg-warning-subtle text-warning px-3 py-2">Pending: {{counts.pending}}</span>
+    <span class="badge bg-info-subtle text-info px-3 py-2">In Progress: {{counts.inProgress}}</span>
+    <span class="badge bg-success-subtle text-success px-3 py-2">Completed: {{counts.completed}}</span>
+    <span class="badge bg-secondary-subtle text-secondary px-3 py-2">Delivered: {{counts.delivered}}</span>
+  </div>
+
+  <!-- Table -->
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size:0.875rem">
+        <thead class="table-dark">
+          <tr>
+            <th class="ps-3">Date</th>
+            <th>Job / Customer</th>
+            <th>Product</th>
+            <th>Status</th>
+            <th class="text-end">Total Cost</th>
+            <th class="text-end">Received</th>
+            <th class="text-end pe-3">Balance Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="repairs.length === 0">
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-tools fs-2 d-block mb-2 opacity-25"></i>
+              No repair jobs found for this range.
+            </td>
+          </tr>
+          <tr *ngFor="let r of repairs">
+            <td class="ps-3 small text-muted">{{ r.receivedDate | date:'dd MMM yy' }}</td>
+            <td>
+              <div class="fw-semibold">{{ r.repairCode }}</div>
+              <small class="text-muted">{{ r.customerName }}</small>
+            </td>
+            <td>
+              <div class="fw-semibold">{{ r.productName }}</div>
+              <small class="text-muted d-block" *ngIf="r.serialNo">SN: {{ r.serialNo }}</small>
+            </td>
+            <td>
+              <span class="badge rounded-pill"
+                [class.bg-warning-subtle]="r.status === 'Pending'" [class.text-warning]="r.status === 'Pending'"
+                [class.bg-info-subtle]="r.status === 'In Progress'" [class.text-info]="r.status === 'In Progress'"
+                [class.bg-success-subtle]="r.status === 'Completed'" [class.text-success]="r.status === 'Completed'"
+                [class.bg-secondary-subtle]="r.status === 'Delivered'" [class.text-secondary]="r.status === 'Delivered'">
+                {{ r.status }}
+              </span>
+            </td>
+            <td class="text-end fw-semibold">Rs. {{ r.totalCost | number:'1.0-0' }}</td>
+            <td class="text-end text-success fw-semibold">Rs. {{ r.amountReceived | number:'1.0-0' }}</td>
+            <td class="text-end pe-3 fw-bold"
+              [class.text-danger]="balanceDue(r) > 0"
+              [class.text-success]="balanceDue(r) <= 0">
+              Rs. {{ balanceDue(r) | number:'1.0-0' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="px-3 pb-2">
+      <app-pagination [page]="page" [limit]="limit" [total]="total" [totalPages]="totalPages"
+        (pageChange)="onPageChange($event)"></app-pagination>
+    </div>
+  </div>
+</div>

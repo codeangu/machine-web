@@ -4,6 +4,9 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { AddProductComponent } from './products/add-product/add-product.component';
 import { ProductsListComponent } from './products/products-list/products-list.component';
+import { AddRepairProductComponent } from './repair-product/add-repair-product/add-repair-product.component';
+import { RepairProductListComponent } from './repair-product/repair-product-list/repair-product-list.component';
+import { RepairReportComponent } from './repair-product/repair-report/repair-report.component';
 import { AddPurchaseComponent } from './purchases/add-purchase/add-purchase.component';
 import { AddSupplierComponent } from './supplier/add-supplier/add-supplier.component';
 import { SupplierListComponent } from './supplier/supplier-list/supplier-list.component';
@@ -29,6 +32,9 @@ const routes: Routes = [
   // 🔐 Protected Routes: Sirf logged-in user access kar sakta hai
   { path: 'products/add', component: AddProductComponent, canActivate: [AuthGuard] },
   { path: 'products/list', component: ProductsListComponent, canActivate: [AuthGuard] },
+  { path: 'repair-product/add', component: AddRepairProductComponent, canActivate: [AuthGuard] },
+  { path: 'repair-product/list', component: RepairProductListComponent, canActivate: [AuthGuard] },
+  { path: 'repair-product/report', component: RepairReportComponent, canActivate: [AuthGuard] },
   { path: 'purchase/add', component: AddPurchaseComponent, canActivate: [AuthGuard] },
   { path: 'purchase/edit/:id', component: AddPurchaseComponent, canActivate: [AuthGuard] },
   { path: 'addSupplier', component: AddSupplierComponent, canActivate: [AuthGuard] },

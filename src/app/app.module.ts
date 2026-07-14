@@ -23,6 +23,10 @@ import { ErrorMessagesComponent } from './error-messages/error-messages.componen
 import { AddEditProductComponent } from './shared/popup/add-edit-product/add-edit-product.component';
 import { AddProductComponent } from './products/add-product/add-product.component';
 import { ProductsListComponent } from './products/products-list/products-list.component';
+import { AddRepairProductComponent } from './repair-product/add-repair-product/add-repair-product.component';
+import { RepairProductListComponent } from './repair-product/repair-product-list/repair-product-list.component';
+import { RepairReportComponent } from './repair-product/repair-report/repair-report.component';
+import { RepairPaymentModalComponent } from './repair-product/repair-payment-modal/repair-payment-modal.component';
 import { AddPurchaseComponent } from './purchases/add-purchase/add-purchase.component';
 import { AddSupplierComponent } from './supplier/add-supplier/add-supplier.component';
 import { SupplierListComponent } from './supplier/supplier-list/supplier-list.component';
@@ -55,6 +59,10 @@ import { PaginationComponent } from './shared/pagination/pagination.component';
     AddEditProductComponent,
     AddProductComponent,
     ProductsListComponent,
+    AddRepairProductComponent,
+    RepairProductListComponent,
+    RepairReportComponent,
+    RepairPaymentModalComponent,
     AddPurchaseComponent,
     AddSupplierComponent,
     SupplierListComponent,

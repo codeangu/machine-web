@@ -30,7 +30,10 @@ export class HeaderComponent implements OnInit {
       isOpen: false,
       dropdown: [
         { label: 'Add Product', route: '/products/add' },
-        { label: 'Products List', route: '/products/list' }
+        { label: 'Products List', route: '/products/list' },
+        { label: 'Repair Product', route: '/repair-product/add' },
+        { label: 'Repair Product List', route: '/repair-product/list' },
+        { label: 'Repair Report', route: '/repair-product/report' }
       ]
     },
         {
@@ -50,15 +53,12 @@ export class HeaderComponent implements OnInit {
       ]
     },
     { label: 'Stock', route: '/stock' },
-    { 
-      label: 'Supplier', 
-      route: '/supplierlist' 
-    },
     {
-      label: 'Customers',
+      label: 'People',
+      isOpen: false,
       dropdown: [
-        { label: 'Customer List', route: '/customers' },
-        { label: 'Add New Customer', route: '/add-customer' }
+        { label: 'Supplier', route: '/supplierlist' },
+        { label: 'Customer List', route: '/customers' }
       ]
     },
     { label: 'Reports', route: '/reports' },

@@ -1,0 +1,118 @@
+<div class="container-fluid py-4 px-4">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold text-primary">{{ editMode ? 'Edit Repair Job' : 'New Repair Job' }}</h5>
+      <button class="btn btn-sm btn-light border" routerLink="/repair-product/list">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+      </button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="repairForm" (ngSubmit)="submit()">
+        <div class="row g-3">
+
+          <div class="col-12"><h6 class="text-primary fw-bold border-bottom pb-2">Customer Info</h6></div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Existing Customer (optional)</label>
+            <select class="form-select" formControlName="customer" (change)="onCustomerSelect()">
+              <option value="">— Walk-in / Not in system —</option>
+              <option *ngFor="let c of customers" [value]="c._id">{{ c.name }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Customer Name *</label>
+            <input type="text" class="form-control" formControlName="customerName"
+                   [class.is-invalid]="repairForm.get('customerName')?.invalid && repairForm.get('customerName')?.touched">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Phone</label>
+            <input type="text" class="form-control" formControlName="customerPhone">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">ID Card / CNIC</label>
+            <input type="text" class="form-control" formControlName="customerCNIC" placeholder="e.g. 35202-1234567-1">
+          </div>
+
+          <div class="col-12 mt-2"><h6 class="text-primary fw-bold border-bottom pb-2">Item Info</h6></div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Product / Machine Name *</label>
+            <input type="text" class="form-control" formControlName="productName"
+                   [class.is-invalid]="repairForm.get('productName')?.invalid && repairForm.get('productName')?.touched">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Model Number</label>
+            <input type="text" class="form-control" formControlName="modelNumber">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Serial Number</label>
+            <input type="text" class="form-control" formControlName="serialNo">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Issue / Problem Description *</label>
+            <textarea class="form-control" rows="2" formControlName="issue"
+                      [class.is-invalid]="repairForm.get('issue')?.invalid && repairForm.get('issue')?.touched"></textarea>
+          </div>
+
+          <div class="col-12 mt-2"><h6 class="text-primary fw-bold border-bottom pb-2">Job Status &amp; Cost</h6></div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Status</label>
+            <select class="form-select" formControlName="status">
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Received Date</label>
+            <input type="date" class="form-control" formControlName="receivedDate">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Completed Date</label>
+            <input type="date" class="form-control" formControlName="completedDate">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Technician</label>
+            <input type="text" class="form-control" formControlName="technician">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Estimated Cost</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white">Rs</span>
+              <input type="number" class="form-control" formControlName="estimatedCost">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Total Cost</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white">Rs</span>
+              <input type="number" class="form-control" formControlName="totalCost">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Amount Received</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white">Rs</span>
+              <input type="number" class="form-control" formControlName="amountReceived">
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Notes</label>
+            <textarea class="form-control" rows="2" formControlName="notes"></textarea>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-light px-4" routerLink="/repair-product/list">Cancel</button>
+          <button type="submit" class="btn btn-primary px-4" [disabled]="repairForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i class="bi bi-check-circle me-1"></i> {{ editMode ? 'Update Repair' : 'Save Repair' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
